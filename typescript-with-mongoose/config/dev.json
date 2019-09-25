@@ -1,0 +1,8 @@
+{
+    "mongodb" : {
+        "uri" : "mongodb://localhost:27017/astro",
+        "url" : "172.17.0.1",
+        "port" : 27017,
+        "name" : "astro"
+    }
+}
