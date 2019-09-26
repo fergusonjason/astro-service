@@ -1,43 +1,33 @@
-import {logger} from "../util/winston";
-import { PagedDataRequest } from "../model/PagedDataRequest";
-import * as config from "../../config/dev.json";
 import mongoose from "mongoose";
 
-export abstract class BaseRepository<T> {
+export abstract class BaseRepository<T extends mongoose.Document> {
 
-    protected uri : string;
+    protected _model : mongoose.Model<T>;
 
-    constructor() {
-        this.uri = config.mongodb.uri;
-
-        mongoose.connect(this.uri, {useNewUrlParser: true});
-
+    constructor(model : mongoose.Model<T>) {
+        this._model = model;
     }
 
-    public exists(collectionName : string) : boolean {
+    public abstract collectionExists() : Promise<boolean>;
 
-        return true;
+    public create = async (obj : T) : Promise<T> => {
 
+        const result : T = await this._model.create(obj);
+
+        return result;
     }
 
-    public abstract get(id : number | string) : Promise<T>;
+    public count = async () : Promise<number> => {
 
-    public abstract count() : Promise<number>;
+        const result : number = await this._model.collection.countDocuments();
 
-    public abstract getAll() : T[];
+        return result;
+    }
 
-    public abstract getPage(pageRequest : PagedDataRequest) : T[];
+    public find = async (obj : object) : Promise<T[]> => {
 
-    // private mongoConnect = async (uri : string) : Promise<mongoose.Connection>  => {
+        const result : T[] = await this._model.find(obj);
 
-    //     let result : Promise<mongoose.Connection>;
-
-    //     try {
-    //         await mongoose.createConnection(this.uri);
-    //         //result = await mongoose.createConnection(this.uri);
-    //     } catch (err) {
-    //         logger.error("Unable to retireve mongoose connection");
-    //     }
-    // }
-
+        return result;
+    }
 }

@@ -15,6 +15,10 @@ class BaseRepository {
             const result = yield this._model.create(obj);
             return result;
         });
+        this.count = () => __awaiter(this, void 0, void 0, function* () {
+            const result = yield this._model.collection.countDocuments();
+            return result;
+        });
         this.find = (obj) => __awaiter(this, void 0, void 0, function* () {
             const result = yield this._model.find(obj);
             return result;

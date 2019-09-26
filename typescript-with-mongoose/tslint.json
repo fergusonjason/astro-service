@@ -7,7 +7,6 @@
     "rules": {
         "eofline" : false,
         "indent" : [true, "spaces", 4],
-        "interface-name" : [true, "never-prefix"],
         "no-empty" : [true, "allow-empty-catch", "allow-empty-functions"],
         "object-literal-shorthand" : false,
         "object-literal-sort-keys": false,

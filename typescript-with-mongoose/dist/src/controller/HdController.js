@@ -34,13 +34,13 @@ class HdController extends BaseController_1.BaseController {
             this.router.get(`${this.prefix}/getByHd`, this.getByHdNumber);
         };
         this.count = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            // logger.debug("HdController: entered count()");
-            // const count : number = await this.hdRepository.count();
-            // const result : object = {count : count};
-            // res.send(result);
+            winston_1.logger.debug("HdController: entered count()");
+            const count = yield this.hdRepository.count();
+            const result = { count: count };
+            res.send(result);
         });
         this.getByHdNumber = (req, res) => __awaiter(this, void 0, void 0, function* () {
-            winston_1.logger.debug("Entered getByHdNumber");
+            winston_1.logger.debug("HDController: Entered getByHdNumber");
             const hdNumber = parseInt(req.query.hdNumber, 10);
             try {
                 const result = yield this.hdRepository.getByHdNumber(hdNumber);
