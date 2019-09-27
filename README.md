@@ -1,8 +1,22 @@
 # astro-service
-Various implementations of my astronomical data service
 
-These are the various implementations of my astronomical data service, which is mainly meant to be
-used as a backend when I'm playing with various frontend technologies.
+These are the various implementations of my astronomical data service. They serve two purposes:
 
-At the moment, there is only the typescript/mongodb implementation, but I'm not a huge mongodb
-fan (Math.random anyone?), so I'll eventually get a postgress one in here.
+1. Figure out new backend technologies
+2. Provide a service to connect to when I want to play with new frontend technologies
+
+These services are all written in typescript and are ME*N stack applications (A removed because this
+is only the backend).
+
+Right now, there are only the following projects in here:
+
+- Typescript with Mongodb - written in typescript accessing a mongodb data store
+- mongoinit - "script" to initialize the mongodb data store
+
+I'll try to get one based on postgres in here in the future, which is what I would actually use in a
+production environment.
+
+This project is related to an upcoming *astro-client* repository, which will have various clients
+to access this service.
+
+Data is provided by the Vizier service.
