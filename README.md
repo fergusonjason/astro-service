@@ -20,3 +20,15 @@ This project is related to an upcoming *astro-client* repository, which will hav
 to access this service.
 
 Data is provided by the Vizier service.
+
+## Server setup
+
+This service assumes that you are running mongodb in a Docker container with port 27017 exposed. This is
+not a comprehensive tutorial, but here's the general setup:
+
+1. Install docker as appropriate for your Operating System.
+2. Install Portainer from dockerhub
+3. Run the Portainer image (you may want to look up how to insure it runs on system startup)
+4. Within portainer, pull (relevant database) image
+5. Within portainer, set up a container for (relevant database), exposing the correct port
+
