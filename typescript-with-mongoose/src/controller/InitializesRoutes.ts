@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-export interface InitializesRoutes {
+export interface IInitializesRoutes {
 
     router : Router;
     initializeRoutes() : void;

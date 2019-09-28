@@ -36,6 +36,7 @@
     "papaparse": "^5.1.0",
     "readline": "^1.3.0",
     "stream": "0.0.2",
+    "vizier-model": "0.0.1",
     "winston": "^3.2.1"
   }
 }

@@ -1,7 +1,7 @@
 import express from "express";
-import {logger} from "./src/util/winston";
+import { logger } from "./src/util/winston";
 import { HdController } from "./src/controller/HdController";
-import { InitializesRoutes } from "./src/model/InitializesRoutes";
+import { IInitializesRoutes } from "./src/controller/InitializesRoutes";
 import * as approot from "app-root-path";
 import mongoose from "mongoose";
 
@@ -13,8 +13,8 @@ const app : express.Application = express();
 const port : number = 3000;
 
 // TODO: eventually need to implement some sort of DI container
-const controllers : InitializesRoutes[] = [new HdController()];
-controllers.forEach((ctrl : InitializesRoutes) => {
+const controllers : IInitializesRoutes[] = [new HdController()];
+controllers.forEach((ctrl : IInitializesRoutes) => {
     app.use("/", ctrl.router);
 });
 

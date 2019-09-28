@@ -1,11 +1,6 @@
-import { PagedDataRequest } from "../model/PagedDataRequest";
-import * as mongoose from "mongoose";
-import { Request, Response, Router } from "express";
-import { InitializesRoutes } from "../model/InitializesRoutes";
+import { Request, Response } from "express";
 
 export abstract class BaseController<T>  {
-
-    constructor() {}
 
     public abstract initializeRoutes() : void;
 

@@ -1,12 +1,11 @@
-import {logger} from "../util/winston";
+import express, { Request, Response, Router } from "express";
+import { logger } from "../util/winston";
 import { IHd } from "../model/HD";
-import { Request, Response, Router } from "express";
 import { BaseController } from "./BaseController";
 import { HdRepository } from "../repository/HdRepository";
-import express from "express";
-import { InitializesRoutes } from "../model/InitializesRoutes";
+import { IInitializesRoutes } from "./InitializesRoutes";
 
-export class HdController extends BaseController<IHd> implements InitializesRoutes {
+export class HdController extends BaseController<IHd> implements IInitializesRoutes {
 
     public router : Router;
 

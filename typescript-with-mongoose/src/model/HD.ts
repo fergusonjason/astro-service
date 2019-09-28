@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose from "mongoose";
 
 export interface IHd extends mongoose.Document {
 
@@ -21,7 +21,7 @@ export interface IHd extends mongoose.Document {
     DEicrs : string;
 }
 
-const schema : mongoose.Schema = new Schema({
+const schema : mongoose.Schema = new mongoose.Schema({
     RAJ2000    :  {type : String, required : true},
     DEJ2000    :  {type : String, required : true},
     HD         :  {type : Number, required : true, unique: true, index: true},
