@@ -62,9 +62,6 @@ export class HdController extends BaseController<IHd> implements IInitializesRou
 
     public get = async (req : Request, res : Response) : Promise<void> => {
 
-        //const result : HD = await this.hdRepository.get(req.query.hd);
-
-        //res.send(JSON.stringify(result));
     }
 
     public getAll = (req : Request, res : Response) : void => {

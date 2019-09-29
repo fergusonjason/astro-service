@@ -1,13 +1,13 @@
 import mongoose from "mongoose";
 import {CommandCursor} from "mongodb";
-import {IHd, hdModel} from "../model/HD";
+import {IHd, HD_MODEL} from "../model/HD";
 import {BaseRepository} from "./BaseRepository";
 import {logger} from "../util/winston";
 
 export class HdRepository extends BaseRepository<IHd> {
 
     constructor() {
-        super(hdModel);
+        super(HD_MODEL);
     }
 
     public collectionExists = async () : Promise<boolean> => {

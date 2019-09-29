@@ -41,4 +41,4 @@ const schema : mongoose.Schema = new mongoose.Schema({
     DEicrs     :  {type : String, required : true},
 });
 
-export const hdModel : mongoose.Model<IHd> = mongoose.model<IHd>("hd", schema);
+export const HD_MODEL : mongoose.Model<IHd> = mongoose.model<IHd>("hd", schema, "hd");
