@@ -17,4 +17,18 @@ export class HdRepository extends BaseRepository<IHd> {
 
         return result;
     }
+
+    public getById = async (id : number): Promise<IHd | null> => {
+
+        const result : IHd | null = await this._model.findOne({HD: id});
+
+        return result;
+    }
+
+    public getPage = async (start : number, stop : number) : Promise<IHd[]> => {
+
+        const result : IHd[] = await this._model.find({HD : {$gte : start, $lte : stop}}).exec();
+
+        return result;
+    }
 }

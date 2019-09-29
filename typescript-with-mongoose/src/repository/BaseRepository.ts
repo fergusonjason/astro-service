@@ -3,7 +3,6 @@ import {CommandCursor} from "mongodb";
 
 export abstract class BaseRepository<T extends mongoose.Document> {
 
-
     protected _model : mongoose.Model<T>;
 
     constructor(model : mongoose.Model<T>) {
@@ -22,13 +21,6 @@ export abstract class BaseRepository<T extends mongoose.Document> {
         }
     }
 
-    public create = async (obj : T) : Promise<T> => {
-
-        const result : T = await this._model.create(obj);
-
-        return result;
-    }
-
     public count = async () : Promise<number> => {
 
         const result : number = await this._model.collection.countDocuments();
@@ -42,4 +34,8 @@ export abstract class BaseRepository<T extends mongoose.Document> {
 
         return result;
     }
+
+    public abstract getById(id : number | string) : Promise<T | null>;
+
+    public abstract getPage(start : number, stop : number) : Promise<T[]>;
 }
