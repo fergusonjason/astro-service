@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
+import {CommandCursor} from "mongodb";
 
 export abstract class BaseRepository<T extends mongoose.Document> {
+
 
     protected _model : mongoose.Model<T>;
 
@@ -8,7 +10,17 @@ export abstract class BaseRepository<T extends mongoose.Document> {
         this._model = model;
     }
 
-    public abstract collectionExists() : Promise<boolean>;
+    public collectionExists = async () : Promise<boolean> => {
+
+        const collectionName : string = this._model.collection.collectionName;
+
+        const collections : CommandCursor = await mongoose.connection.db.listCollections({name: collectionName});
+        if (collections) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     public create = async (obj : T) : Promise<T> => {
 
