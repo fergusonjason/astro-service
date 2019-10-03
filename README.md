@@ -11,7 +11,7 @@ is only the backend).
 Right now, there are only the following projects in here:
 
 - Typescript with Mongodb - written in typescript accessing a mongodb data store
-- mongoinit - "script" to initialize the mongodb data store
+- dataInit - scripts to initialize the various data stores
 
 I'll try to get one based on postgres in here in the future, which is what I would actually use in a
 production environment.
