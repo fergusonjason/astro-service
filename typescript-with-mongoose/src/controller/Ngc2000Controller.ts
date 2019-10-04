@@ -8,7 +8,8 @@ import { IPagedDataResponse } from "../model/PagedDataResponse";
 export class Ngc2000Controller extends BaseController<INgc2000> implements IInitializesRoutes {
 
     public router: express.Router;
-    private pathPrefix : string = "/ngc2000";
+
+    private pathPrefix : string = `${this._apiVersion}/ngc2000`;
     private _repository : Ngc2000Repository;
 
     constructor() {

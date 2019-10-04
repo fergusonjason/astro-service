@@ -9,7 +9,7 @@ export class HdController extends BaseController<IHd> implements IInitializesRou
 
     public router : Router;
 
-    private prefix : string = "/hd";
+    private prefix : string = `${this._apiVersion}/hd`;
     private hdRepository : HdRepository;
 
     constructor() {

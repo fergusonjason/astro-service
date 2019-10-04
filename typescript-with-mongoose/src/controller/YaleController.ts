@@ -10,7 +10,7 @@ export class YaleController extends BaseController<IYale> implements IInitialize
 
     public router : Router;
 
-    private prefix : string = "/hd";
+    private prefix : string = `${this._apiVersion}/yale`;
     private repository : YaleRepository;
 
     constructor() {
