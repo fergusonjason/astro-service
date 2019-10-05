@@ -9,7 +9,10 @@ import { Ngc2000Controller } from "./src/controller/Ngc2000Controller";
 
 logger.debug(`Basedir: ${approot}`);
 
-mongoose.connect("mongodb://localhost:27017/astro", {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect("mongodb://localhost:27017/astro",
+    {useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useCreateIndex: true});
 
 const app : express.Application = express();
 const port : number = 3000;
