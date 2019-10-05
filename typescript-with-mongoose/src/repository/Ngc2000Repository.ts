@@ -1,5 +1,6 @@
 import { INgc2000, NGC2000_MODEL } from "../model/Ngc2000";
 import { BaseRepository } from "./BaseRepository";
+import { logger } from "../util/winston";
 
 export class Ngc2000Repository extends BaseRepository<INgc2000>{
 
@@ -8,7 +9,9 @@ export class Ngc2000Repository extends BaseRepository<INgc2000>{
     }
 
     public getById = async (id : string): Promise<INgc2000 | null> => {
-        return await this._model.findOne({name : id});
+
+        logger.debug(`Ngc2000Repository: entered getById(), id: ${id}`);
+        return await this._model.findOne({Name : parseInt(id, 10)});
     }
 
     public getPage = async (start : number, stop : number): Promise<INgc2000[]> => {

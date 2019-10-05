@@ -4,6 +4,7 @@ import express, { Request, Response} from "express";
 import { Ngc2000Repository } from "../repository/Ngc2000Repository";
 import { BaseController } from "./BaseController";
 import { IPagedDataResponse } from "../model/PagedDataResponse";
+import { logger } from "../util/winston";
 
 export class Ngc2000Controller extends BaseController<INgc2000> implements IInitializesRoutes {
 
@@ -15,25 +16,26 @@ export class Ngc2000Controller extends BaseController<INgc2000> implements IInit
     constructor() {
         super();
 
+        logger.debug("Initializing Ngc2000Controller");
         this.router = express.Router();
         this._repository = new Ngc2000Repository();
+
+        this.initializeRoutes();
     }
 
     public initializeRoutes = () : void => {
 
-        this.router.get(`${this.pathPrefix}/count`, this.count);
-        this.router.get(`${this.pathPrefix}/get`, this.get);
+        logger.debug("Initializing routers for ngc2000");
+
+        this.router.get(`${this.pathPrefix}`, this.get);
         this.router.get(`${this.pathPrefix}/getAll`, this.getAll);
+        this.router.get(`${this.pathPrefix}/count`, this.count);
         this.router.get(`${this.pathPrefix}/page`, this.page);
     }
 
-    public count = async (req : express.Request, res : express.Response): Promise<void> => {
-
-        const result : number = await this._repository.count();
-        res.send(result);
-    }
-
     public get = async (req : express.Request, res : express.Response): Promise<void> => {
+
+        logger.debug(`Ngc2000Controller: entered get(), id: ${req.query.id}`);
 
         const id : string = req.query.id;
         const result : INgc2000 | null = await this._repository.getById(id);
@@ -43,6 +45,12 @@ export class Ngc2000Controller extends BaseController<INgc2000> implements IInit
 
     public getAll = async (req : express.Request, res : express.Response): Promise<void> => {
         throw new Error("Method not implemented.");
+    }
+
+    public count = async (req : express.Request, res : express.Response): Promise<void> => {
+
+        const result : number = await this._repository.count();
+        res.send(result);
     }
 
     public page = async (req : express.Request, res : express.Response): Promise<void> => {
