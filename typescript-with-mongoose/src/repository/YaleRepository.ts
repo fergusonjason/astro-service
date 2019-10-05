@@ -1,5 +1,6 @@
 import { IYale, YALE_MODEL } from "../model/Yale";
 import { BaseRepository } from "./BaseRepository";
+import { logger } from "../util/winston";
 
 export class YaleRepository extends BaseRepository<IYale> {
 
@@ -9,10 +10,13 @@ export class YaleRepository extends BaseRepository<IYale> {
 
     public getById = async (id : string | number): Promise<IYale | null> => {
 
-        return await this._model.findOne({hr : id});
+        logger.debug(`YaleRepository: entered getById(), id: ${id}`);
+        return await this._model.findOne({HR : id});
     }
+
     public getPage = async (start : number, stop : number): Promise<IYale[]> => {
 
-        return await this._model.find({hr : { $gte : start, $lte: stop}}).exec();
+        logger.debug(`YaleRepository: entered getPage(), start: ${start}, stop: ${stop}`);
+        return await this._model.find({HR : { $gte : start, $lte: stop}}).exec();
     }
 }

@@ -3,6 +3,7 @@ import { BaseController } from "./BaseController";
 import { IInitializesRoutes } from "./InitializesRoutes";
 import { YaleRepository } from "../repository/YaleRepository";
 import { IPagedDataResponse } from "../model/PagedDataResponse";
+import { logger } from "../util/winston";
 
 import express, { Request, Response, Router } from "express";
 
@@ -15,14 +16,21 @@ export class YaleController extends BaseController<IYale> implements IInitialize
 
     constructor() {
         super();
+
+        logger.debug("Initializing YaleController");
+
         this.router = express.Router();
         this.repository = new YaleRepository();
+
+        this.initializeRoutes();
     }
 
     public initializeRoutes(): void {
 
+        logger.debug("Initializing routers for yale");
+
         this.router.get(`${this.prefix}/count`, this.count);
-        this.router.get(`${this.prefix}/get`, this.get);
+        this.router.get(`${this.prefix}`, this.get);
         this.router.get(`${this.prefix}/getAll`, this.getAll);
         this.router.get(`${this.prefix}/page`, this.page);
     }
@@ -34,6 +42,8 @@ export class YaleController extends BaseController<IYale> implements IInitialize
     }
 
     public get = async (req : Request, res : Response): Promise<void> => {
+
+        logger.debug(`YaleController: entered get(): id: ${req.query.id}`);
 
         const id : number = req.query.id;
         const result : IYale | null = await this.repository.getById(id);
