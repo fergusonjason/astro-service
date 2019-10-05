@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { ICoordinateSet, IXrefSet, ICOORDINATES_SET_SCHEMA, IXREFSET_SCHEMA } from "./common";
 
 /**
  * NGC 2000 catalog
@@ -17,30 +18,30 @@ import mongoose from "mongoose";
  */
 export interface INgc2000 extends mongoose.Document {
 
-    name: string;
-    type: string | null;
-    rab2000 : string;
-    deb2000: string;
-    source : string;
-    constellation: string;
-    lsize : string | null;
-    size: number | null;
-    magnitude: number | null;
-    nMag: string | null;
-    desc: string;
+    name          : string;
+    type          : string | null;
+    source        : string;
+    constellation : string;
+    lsize         : string | null;
+    size          : number | null;
+    magnitude     : number | null;
+    nMag          : string | null;
+    desc          : string;
+    coordinates   : ICoordinateSet;
+    xref          : IXrefSet;
 }
 
 const schema : mongoose.Schema = new mongoose.Schema({
-    name : {type: String, indexed: true, required: true},
-    type : {type: String},
-    rab2000 : {type : String},
-    deb2000 : {type : String},
-    constellation : {type : String},
-    lsize : {type : String },
-    size : {type : Number },
-    magnitude : {type : Number },
-    nMag : { type : String},
-    desc : { type : String }
+    name          : { type : String, indexed: true, required: true },
+    type          : { type : String },
+    constellation : { type : String },
+    lsize         : { type : String },
+    size          : { type : Number },
+    magnitude     : { type : Number },
+    nMag          : { type : String},
+    desc          : { type : String },
+    coordinates   : ICOORDINATES_SET_SCHEMA,
+    xref          : IXREFSET_SCHEMA
 });
 
 export const NGC2000_MODEL : mongoose.Model<INgc2000> = mongoose.model<INgc2000>("ngc2000", schema, "ngc2000");
