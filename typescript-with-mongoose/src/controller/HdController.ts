@@ -5,6 +5,7 @@ import { BaseController } from "./BaseController";
 import { HdRepository } from "../repository/HdRepository";
 import { IInitializesRoutes } from "./InitializesRoutes";
 import { IPagedDataResponse } from "../model/PagedDataResponse";
+import { check, validationResult, ValidationError, Result } from "express-validator";
 
 export class HdController extends BaseController<IHd> implements IInitializesRoutes {
 
@@ -27,10 +28,15 @@ export class HdController extends BaseController<IHd> implements IInitializesRou
 
         logger.debug("Initializing routers for hd");
 
-        this.router.get(`${this.prefix}`, this.get);
+        this.router.get(`${this.prefix}`, [
+            check("id").exists().withMessage("id is mandatory").isNumeric().withMessage("id must be numeric")
+        ], this.get);
         this.router.get(`${this.prefix}/count`, this.count);
         this.router.get(`${this.prefix}/getAll`, this.getAll);
-        this.router.get(`${this.prefix}/page`, this.page);
+        this.router.get(`${this.prefix}/page`, [
+            check("start").exists().withMessage("start is mandatory").isNumeric().withMessage("start must be numeric"),
+            check("pageSize").exists().withMessage("pageSize is mandatory").isNumeric().withMessage("pageSize must be numeric")
+        ], this.page);
     }
 
     public get = async (req : Request, res : Response) : Promise<void> => {
@@ -86,18 +92,20 @@ export class HdController extends BaseController<IHd> implements IInitializesRou
 
     public page = async (req : Request, res : Response) : Promise<void> => {
 
-        logger.debug(`HDController: entered page(), start: ${req.query.start}, end: ${req.query.stop}`);
+        logger.debug(`HDController: entered page(), query params: ${JSON.stringify(req.query)}`);
 
         const start : number = parseInt(req.query.start, 10);
-        const stop : number = parseInt(req.query.stop, 10);
+        const pageSize : number = parseInt(req.query.pageSize, 10);
+        const field : string = req.query.field;
+        const sortDir : number = req.query.sortDir;
 
         try {
             const count : number = await this.hdRepository.count();
-            const items : IHd[] = await this.hdRepository.getPage(start, stop);
+            const items : IHd[] = await this.hdRepository.getPage(start, pageSize, field, sortDir);
             const result : IPagedDataResponse<IHd[]> = {
                 result : items,
                 start: start,
-                stop: stop,
+                stop: start + pageSize,
                 totalRecords: count
             };
 
