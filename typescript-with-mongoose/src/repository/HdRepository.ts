@@ -7,10 +7,10 @@ import {logger} from "../util/winston";
 export class HdRepository extends BaseRepository<IHd> {
 
     constructor() {
-        super(HD_MODEL);
+        super(HD_MODEL, "HdRepository");
     }
 
-    public getById = async (id : number): Promise<IHd | null> => {
+    public getByNaturalId = async (id : number): Promise<IHd | null> => {
 
         const result : IHd | null = await this._model.findOne({HD: id});
 

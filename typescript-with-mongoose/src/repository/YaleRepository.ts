@@ -6,58 +6,51 @@ import { logger } from "../util/winston";
 export class YaleRepository extends BaseRepository<IYale> {
 
     constructor() {
-        super(YALE_MODEL);
+        super(YALE_MODEL, "YaleRepository");
     }
 
-    public getById = async (id : string | number): Promise<IYale | null> => {
+    public getByNaturalId = async (id : string | number): Promise<IYale | null> => {
 
         logger.debug(`YaleRepository: entered getById(), id: ${id}`);
+
         return await this._model.findOne({HR : id});
     }
 
-    public getPage = async (start : number, pageSize : number, field? : string, sortDir? : number)
-        : Promise<IYale[]> => {
+    // public getPage = async (start : number, pageSize : number, field? : string, sortDir? : number,
+    //                         filterOp? : string, filterVal? : string | number) : Promise<IYale[]> => {
 
-        logger.debug(`YaleRepository: entered getPage(), start: ${start}, pageSize: ${pageSize}, field: ${field}, sortDir: ${sortDir}`);
+    //     logger.debug(`YaleRepository: entered getPage(): start: ${start}, pageSize: ${pageSize},
+    //         field: ${field}, sortDir: ${sortDir}`);
 
-        if (!field) {
-            field = "HR";
-        }
+    //     if (!field) {
+    //         logger.debug("No field specified, using HR");
+    //         field = "HR";
+    //     }
 
-        if (!sortDir) {
-            sortDir = 1;
-        }
+    //     if (!sortDir) {
+    //         sortDir = 1;
+    //     }
 
-        let findObj : IQueryObj = {};
-        let sortObj : IQueryObj = {};
-        switch (field) {
-            case "HR":
-                findObj = {
-                    HR : { $gte : start }
-                };
-                sortObj = {
-                    HR : sortDir
-                };
-                break;
-            case "VMag":
-                findObj = {
-                    VMag : { $gte : start }
-                };
-                sortObj = {
-                    VMag : sortDir
-                };
-                break;
-            case "BV":
-                findObj = {
-                    BV : { $gte : start }
-                };
-                sortObj = {
-                    BV : sortDir
-                };
-                break;
-        }
+    //     const findObj : IQueryObj = {};
+    //     const sortObj : IQueryObj = {};
+    //     const mongoOp : string = "$" + filterOp;
+    //     if (filterOp && filterVal) {
 
-        return await this._model.find(findObj).sort(sortObj).skip(start)
-            .limit(pageSize).exec();
-    }
+    //         sortObj[field] = sortDir;
+
+    //         switch (filterOp) {
+    //             case "startsWith" :
+    //                 const regexp : RegExp = new RegExp("^" + filterVal);
+    //                 findObj[field] = { $regex : regexp};
+    //                 break;
+    //             default:
+    //                 findObj[field] = { [mongoOp] : filterVal };
+    //         }
+    //     }
+
+    //     // logger.debug(`Findobj: ${JSON.stringify(findObj)}, sortobj: ${JSON.stringify(sortObj)}`);
+
+    //     return await this._model.find(findObj).sort(sortObj).skip(start)
+    //         .limit(pageSize).exec();
+    // }
 }

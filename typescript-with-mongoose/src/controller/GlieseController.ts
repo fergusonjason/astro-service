@@ -60,30 +60,32 @@ export class GlieseController extends BaseController<IGliese> implements IInitia
 
     public page = async (req : express.Request, res : express.Response): Promise<void> => {
 
-        logger.debug(`GlieseController: entered page(), params: ${JSON.stringify(req.query)}`);
+        throw new Error("Method not implemented.");
 
-        const errors : Result<ValidationError> = validationResult(req);
-        if (!errors.isEmpty()) {
-            logger.debug("Errors found");
-            res.status(400).json({errors: errors.array()});
-            return;
-        }
+        // logger.debug(`GlieseController: entered page(), params: ${JSON.stringify(req.query)}`);
 
-        const start : number = parseInt(req.query.start, 10);
-        const end : number = parseInt(req.query.end, 10);
-        const field : string = req.query.field;
-        const sortDir : number = parseInt(req.query.sortDir, 10);
+        // const errors : Result<ValidationError> = validationResult(req);
+        // if (!errors.isEmpty()) {
+        //     logger.debug("Errors found");
+        //     res.status(400).json({errors: errors.array()});
+        //     return;
+        // }
 
-        const count : number = await this.repository.count();
-        const items : IGliese[] = await this.repository.getPage2(start, end, field, sortDir);
+        // const start : number = parseInt(req.query.start, 10);
+        // const end : number = parseInt(req.query.end, 10);
+        // const field : string = req.query.field;
+        // const sortDir : number = parseInt(req.query.sortDir, 10);
 
-        const result : IPagedDataResponse<IGliese[]> = {
-            result : items,
-            start : start,
-            stop : end,
-            totalRecords : count
-        };
+        // const count : number = await this.repository.count();
+        // const items : IGliese[] = await this.repository.getPage(start, end, field, sortDir);
 
-        res.json(result);
+        // const result : IPagedDataResponse<IGliese[]> = {
+        //     result : items,
+        //     start : start,
+        //     stop : end,
+        //     totalRecords : count
+        // };
+
+        // res.json(result);
     }
 }

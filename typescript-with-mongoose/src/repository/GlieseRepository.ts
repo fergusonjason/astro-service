@@ -5,10 +5,10 @@ import { logger } from "../util/winston";
 export class GlieseRepository extends BaseRepository<IGliese> {
 
     constructor() {
-        super(GLIESE_MODEL);
+        super(GLIESE_MODEL, "GlieseRepository");
     }
 
-    public getById(id : string | number): Promise<IGliese | null> {
+    public getByNaturalId(id : string | number): Promise<IGliese | null> {
         throw new Error("Method not implemented.");
     }
 
@@ -23,10 +23,10 @@ export class GlieseRepository extends BaseRepository<IGliese> {
         throw new Error("Method not implemented.");
     }
 
-    public getPage2 = async (start : number, stop : number, field : string, sortDir : number) : Promise<IGliese[]> => {
+    // public getPage2 = async (start : number, stop : number, field : string, sortDir : number) : Promise<IGliese[]> => {
 
-        logger.debug(`Entered getPage(), start: ${start}, stop: ${stop}, field: ${field}, sortDir: ${sortDir}`);
+    //     logger.debug(`Entered getPage(), start: ${start}, stop: ${stop}, field: ${field}, sortDir: ${sortDir}`);
 
-        return await this._model.find({field : { $gte : start, $lte: stop}}).exec();
-    }
+    //     return await this._model.find({field : { $gte : start, $lte: stop}}).exec();
+    // }
 }

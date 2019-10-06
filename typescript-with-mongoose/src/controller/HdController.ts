@@ -50,7 +50,7 @@ export class HdController extends BaseController<IHd> implements IInitializesRou
         }
 
         try {
-            let result : IHd | null | object = await this.hdRepository.getById(id);
+            let result : IHd | null | object = await this.hdRepository.getByNaturalId(id);
             if (result == null) {
                 result = {};
             }

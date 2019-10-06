@@ -38,7 +38,7 @@ export class Ngc2000Controller extends BaseController<INgc2000> implements IInit
         logger.debug(`Ngc2000Controller: entered get(), id: ${req.query.id}`);
 
         const id : string = req.query.id;
-        const result : INgc2000 | null = await this._repository.getById(id);
+        const result : INgc2000 | null = await this._repository.getByNaturalId(id);
 
         res.json(result);
     }

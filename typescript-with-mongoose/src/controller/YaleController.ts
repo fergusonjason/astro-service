@@ -61,9 +61,14 @@ export class YaleController extends BaseController<IYale> implements IInitialize
         }
 
         const id : number = req.query.id;
-        const result : IYale | null = await this.repository.getById(id);
+        try {
+            const result : IYale | null = await this.repository.getByNaturalId(id);
+            res.json(result);
+        } catch (err) {
+            res.status(400).send(`Error: ${err}`);
+            return;
+        }
 
-        res.json(result);
     }
 
     public getAll(req : Request, res : Response): void {
@@ -81,15 +86,31 @@ export class YaleController extends BaseController<IYale> implements IInitialize
             return;
         }
 
+        const numericFields : string[] = ["HR", "Vmag", "BV"];
+
         const start : number = parseInt(req.query.start, 10);
         const pageSize : number = parseInt(req.query.pageSize, 10);
         const field : string = req.query.field;
-        const sortDir : number = req.query.sortDir;
+        const sortDir : number = parseInt(req.query.sortDir, 10);
+        const filterOp : string = req.query.filterOp;
+        let filterVal : number | string;
+        if (numericFields.indexOf(field) > -1) {
+            filterVal = parseInt(req.query.filterVal, 10);
+        } else {
+            filterVal = req.query.filterVal;
+        }
 
-        const count : number = await this.repository.count();
+        let count : number;
+        try {
+            count = await this.repository.count();
+        } catch (err) {
+            res.status(400).json(JSON.stringify(err));
+            return;
+        }
 
         try {
-            const items : IYale[] = await this.repository.getPage(start, pageSize, field, sortDir);
+            const items : IYale[] = await this.repository.getPage(start, pageSize, field,
+                                                                   sortDir, filterOp, filterVal);
 
             const result : IPagedDataResponse<IYale[]> = {
                 result : items,
