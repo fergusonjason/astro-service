@@ -2,7 +2,7 @@ import { IYale } from "../model/Yale";
 import { BaseController } from "./BaseController";
 import { IInitializesRoutes } from "./InitializesRoutes";
 import { YaleRepository } from "../repository/YaleRepository";
-import { IPagedDataResponse } from "../model/PagedDataResponse";
+import { IPagedDataResponse } from "./PagedDataResponse";
 import { logger } from "../util/winston";
 import { check, validationResult, ValidationError, Result } from "express-validator";
 

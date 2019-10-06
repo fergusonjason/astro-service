@@ -3,7 +3,7 @@ import { IInitializesRoutes } from "./InitializesRoutes";
 import express, { Request, Response} from "express";
 import { Ngc2000Repository } from "../repository/Ngc2000Repository";
 import { BaseController } from "./BaseController";
-import { IPagedDataResponse } from "../model/PagedDataResponse";
+import { IPagedDataResponse } from "./PagedDataResponse";
 import { logger } from "../util/winston";
 
 export class Ngc2000Controller extends BaseController<INgc2000> implements IInitializesRoutes {

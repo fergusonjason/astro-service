@@ -4,7 +4,7 @@ import { IHd } from "../model/HD";
 import { BaseController } from "./BaseController";
 import { HdRepository } from "../repository/HdRepository";
 import { IInitializesRoutes } from "./InitializesRoutes";
-import { IPagedDataResponse } from "../model/PagedDataResponse";
+import { IPagedDataResponse } from "./PagedDataResponse";
 import { check, validationResult, ValidationError, Result } from "express-validator";
 
 export class HdController extends BaseController<IHd> implements IInitializesRoutes {

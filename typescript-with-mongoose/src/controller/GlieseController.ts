@@ -3,7 +3,7 @@ import { IGliese } from "../model/Gliese";
 import { IInitializesRoutes } from "./InitializesRoutes";
 import { GlieseRepository } from "../repository/GlieseRepository";
 import express, { Router } from "express";
-import { IPagedDataResponse } from "../model/PagedDataResponse";
+import { IPagedDataResponse } from "./PagedDataResponse";
 import { logger } from "../util/winston";
 import { check, validationResult, ValidationError, Result } from "express-validator";
 
