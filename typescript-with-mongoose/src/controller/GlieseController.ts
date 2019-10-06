@@ -5,6 +5,7 @@ import { GlieseRepository } from "../repository/GlieseRepository";
 import express, { Router } from "express";
 import { IPagedDataResponse } from "../model/PagedDataResponse";
 import { logger } from "../util/winston";
+import { check, validationResult, ValidationError, Result } from "express-validator";
 
 export class GlieseController extends BaseController<IGliese> implements IInitializesRoutes {
 
@@ -31,7 +32,11 @@ export class GlieseController extends BaseController<IGliese> implements IInitia
         this.router.get(`${this.prefix}/count`, this.count);
         this.router.get(`${this.prefix}`, this.get);
         this.router.get(`${this.prefix}/getAll`, this.getAll);
-        this.router.get(`${this.prefix}/page`, this.page);
+        this.router.get(`${this.prefix}/page`, [
+            check("start").exists().withMessage("start is mandatory").isNumeric().withMessage("start must be numeric"),
+            check("end").exists().withMessage("end is mandatory").isNumeric().withMessage("end must be numeric"),
+            check("field").exists().withMessage("sortfield must be specified")
+        ], this.page);
     }
 
     public count = async (req : express.Request, res : express.Response): Promise<void> => {
@@ -55,11 +60,22 @@ export class GlieseController extends BaseController<IGliese> implements IInitia
 
     public page = async (req : express.Request, res : express.Response): Promise<void> => {
 
-        const start : number = Number(req.query.start);
-        const end : number = Number(req.query.end);
+        logger.debug(`GlieseController: entered page(), params: ${JSON.stringify(req.query)}`);
+
+        const errors : Result<ValidationError> = validationResult(req);
+        if (!errors.isEmpty()) {
+            logger.debug("Errors found");
+            res.status(400).json({errors: errors.array()});
+            return;
+        }
+
+        const start : number = parseInt(req.query.start, 10);
+        const end : number = parseInt(req.query.end, 10);
+        const field : string = req.query.field;
+        const sortDir : number = parseInt(req.query.sortDir, 10);
 
         const count : number = await this.repository.count();
-        const items : IGliese[] = await this.repository.getPage(start, end);
+        const items : IGliese[] = await this.repository.getPage2(start, end, field, sortDir);
 
         const result : IPagedDataResponse<IGliese[]> = {
             result : items,

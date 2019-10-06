@@ -22,4 +22,11 @@ export class GlieseRepository extends BaseRepository<IGliese> {
 
         throw new Error("Method not implemented.");
     }
+
+    public getPage2 = async (start : number, stop : number, field : string, sortDir : number) : Promise<IGliese[]> => {
+
+        logger.debug(`Entered getPage(), start: ${start}, stop: ${stop}, field: ${field}, sortDir: ${sortDir}`);
+
+        return await this._model.find({field : { $gte : start, $lte: stop}}).exec();
+    }
 }
