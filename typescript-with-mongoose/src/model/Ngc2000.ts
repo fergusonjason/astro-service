@@ -22,10 +22,8 @@ export interface INgc2000 extends mongoose.Document {
     type          : string | null;
     source        : string;
     constellation : string;
-    lsize         : string | null;
     size          : number | null;
     magnitude     : number | null;
-    nMag          : string | null;
     desc          : string;
     coordinates   : ICoordinateSet;
     xref          : IXrefSet;
@@ -34,11 +32,10 @@ export interface INgc2000 extends mongoose.Document {
 const schema : mongoose.Schema = new mongoose.Schema({
     name          : { type : String, indexed: true, required: true },
     type          : { type : String },
+    source        : { type : String },
     constellation : { type : String },
-    lsize         : { type : String },
     size          : { type : Number },
     magnitude     : { type : Number },
-    nMag          : { type : String},
     desc          : { type : String },
     coordinates   : ICOORDINATES_SET_SCHEMA,
     xref          : IXREFSET_SCHEMA

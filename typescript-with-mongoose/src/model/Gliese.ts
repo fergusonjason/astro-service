@@ -15,30 +15,30 @@ import { ICoordinateSet, IXrefSet, ICOORDINATES_SET_SCHEMA, IXREFSET_SCHEMA } fr
  */
 export interface IGliese extends mongoose.Document {
 
-    Name          : string;
-    pm            : number;
-    pmPa          : number;
-    rv            : number | null;
-    sp            : string | null;
-    vMag          : string;
-    bvMag         : string | null;
-    plx           : number;
-    coordinates   : ICoordinateSet;
-    xref          : IXrefSet;
+    name             : string;
+    pm               : number;
+    pmPA             : number;
+    RadialVelocity   : number | null;
+    SpectralType     : string | null;
+    VisualMagnitude  : string;
+    BV               : number | null;
+    plx              : number;
+    coordinates      : ICoordinateSet;
+    // xref          : IXrefSet;
 
 }
 
 const schema : mongoose.Schema = new mongoose.Schema({
-    name          : { type : String, indexed: true, required: true},
-    pm            : { type : Number },
-    pmPa          : { type : Number },
-    rv            : { type : Number },
-    sp            : { type : String },
-    vMag          : { type : String },
-    bvMag         : { type : String },
-    plx           : { type : Number },
-    coordinates   : ICOORDINATES_SET_SCHEMA,
-    xref          : IXREFSET_SCHEMA
+    name              : { type : String, indexed: true, required: true},
+    pm                : { type : Number },
+    pmPA              : { type : Number },
+    RadialVelocity    : { type : Number },
+    SpectralType      : { type : String },
+    VisualMagnitude   : { type : String },
+    BV                : { type : String },
+    plx               : { type : Number },
+    coordinates       : ICOORDINATES_SET_SCHEMA,
+    // xref           : IXREFSET_SCHEMA
 });
 
 export const GLIESE_MODEL : mongoose.Model<IGliese> = mongoose.model<IGliese>("gliese", schema, "gliese");

@@ -15,30 +15,24 @@ import { ICoordinateSet, IXrefSet, ICOORDINATES_SET_SCHEMA, IXREFSET_SCHEMA } fr
  */
 export interface IYale extends mongoose.Document {
 
-    HR            : number;
-    name          : string;
-    hd            : number;
-    ads           : number | null;
-    varId         : string | null;
-    vMag          : number;
-    bvMag         : number;
-    spType        : string;
-    coordinates   : ICoordinateSet;
-    xref          : IXrefSet;
+    HR              : number;
+    name            : string;
+    BV              : number;
+    VisualMagnitude : number;
+    SpectralType    : string;
+    coordinates     : ICoordinateSet;
+    xref            : IXrefSet;
 }
 
 const schema : mongoose.Schema = new mongoose.Schema({
 
-    HR            : { type : Number, indexed: true, required : true},
-    name          : { type : String },
-    hd            : { type : Number },
-    ads           : { type : Number },
-    varId         : { type : String },
-    vMag          : { type : Number },
-    bvMag         : { type : Number },
-    spType        : { type : String},
-    coordinates   : ICOORDINATES_SET_SCHEMA,
-    xref          : IXREFSET_SCHEMA
+    HR              : { type : Number, indexed: true, required : true},
+    name            : { type : String },
+    VisualMagnitude : { type : Number },
+    BV              : { type : Number },
+    SpectralType    : { type : String},
+    coordinates     : ICOORDINATES_SET_SCHEMA,
+    xref            : IXREFSET_SCHEMA
 });
 
 export const YALE_MODEL : mongoose.Model<IYale> = mongoose.model<IYale>("yale", schema, "yale");
