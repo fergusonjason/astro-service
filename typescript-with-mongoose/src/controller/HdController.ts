@@ -22,6 +22,12 @@ export class HdController extends BaseController<IHd> implements IInitializesRou
         this.hdRepository = new HdRepository();
 
         this.initializeRoutes();
+
+        this.router.stack.forEach((item) => {
+            if (item.route) {
+                logger.debug(`Path: ${item.route.path}, Methods: ${JSON.stringify(item.route.methods)}`);
+            }
+        });
     }
 
     public initializeRoutes = () : void => {

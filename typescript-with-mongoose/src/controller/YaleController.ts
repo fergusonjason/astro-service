@@ -1,12 +1,15 @@
-import { IYale } from "../model/Yale";
-import { BaseController } from "./BaseController";
-import { IInitializesRoutes } from "./InitializesRoutes";
-import { YaleRepository } from "../repository/YaleRepository";
-import { IPagedDataResponse } from "./PagedDataResponse";
-import { logger } from "../util/winston";
+import express, { Request, Response, Router } from "express";
 import { check, validationResult, ValidationError, Result } from "express-validator";
 
-import express, { Request, Response, Router } from "express";
+import { logger } from "../util/winston";
+
+import { IYale } from "../model/Yale";
+import { IInitializesRoutes } from "./InitializesRoutes";
+import { IPagedDataResponse } from "./PagedDataResponse";
+
+import { BaseController } from "./BaseController";
+
+import { YaleRepository } from "../repository/YaleRepository";
 
 export class YaleController extends BaseController<IYale> implements IInitializesRoutes {
 
@@ -24,6 +27,12 @@ export class YaleController extends BaseController<IYale> implements IInitialize
         this.repository = new YaleRepository();
 
         this.initializeRoutes();
+
+        this.router.stack.forEach((item) => {
+            if (item.route) {
+                logger.debug(`Path: ${item.route.path}, Methods: ${JSON.stringify(item.route.methods)}`);
+            }
+        });
     }
 
     public initializeRoutes(): void {

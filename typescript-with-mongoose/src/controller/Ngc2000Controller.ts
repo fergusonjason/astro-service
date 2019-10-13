@@ -21,6 +21,12 @@ export class Ngc2000Controller extends BaseController<INgc2000> implements IInit
         this._repository = new Ngc2000Repository();
 
         this.initializeRoutes();
+
+        this.router.stack.forEach((item) => {
+            if (item.route) {
+                logger.debug(`Path: ${item.route.path}, Methods: ${JSON.stringify(item.route.methods)}`);
+            }
+        });
     }
 
     public initializeRoutes = () : void => {

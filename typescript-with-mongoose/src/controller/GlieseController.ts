@@ -23,6 +23,12 @@ export class GlieseController extends BaseController<IGliese> implements IInitia
         this.repository = new GlieseRepository();
 
         this.initializeRoutes();
+
+        this.router.stack.forEach((item) => {
+            if (item.route) {
+                logger.debug(`Path: ${item.route.path}, Methods: ${JSON.stringify(item.route.methods)}`);
+            }
+        });
     }
 
     public initializeRoutes(): void {
