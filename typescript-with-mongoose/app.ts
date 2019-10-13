@@ -1,13 +1,17 @@
 import express from "express";
-import { logger } from "./src/util/winston";
-import { HdController } from "./src/controller/HdController";
-import { IInitializesRoutes } from "./src/controller/InitializesRoutes";
-import * as approot from "app-root-path";
+import cors from "cors";
+import morgan from "morgan";
 import mongoose from "mongoose";
+import approot from "app-root-path";
+
+import { logger } from "./src/util/winston";
+
+import { IInitializesRoutes } from "./src/controller/InitializesRoutes";
+
+import { HdController } from "./src/controller/HdController";
 import { YaleController } from "./src/controller/YaleController";
 import { Ngc2000Controller } from "./src/controller/Ngc2000Controller";
 import { GlieseController } from "./src/controller/GlieseController";
-import cors from "cors";
 
 logger.debug(`Basedir: ${approot}`);
 
@@ -19,6 +23,7 @@ mongoose.connect("mongodb://172.17.0.1:27017/astro",
 const app : express.Application = express();
 const port : number = 3000;
 
+app.use(morgan("combined"));
 app.use(cors);
 
 // TODO: eventually need to implement some sort of DI container

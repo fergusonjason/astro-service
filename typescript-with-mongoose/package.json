@@ -6,17 +6,37 @@
   "scripts": {
     "build": "npm-run-all clean tsc",
     "clean": "rimraf dist/*",
+    "dockerize" : "docker build -t fergusonjason/astro-service-ts-express-mongo .",
     "start": "node ./dist/app.js",
     "tsc": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Jason",
   "license": "MIT",
+  "dependencies": {
+    "adm-zip": "^0.4.13",
+    "app-root-path": "^2.2.1",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-validator": "^6.2.0",
+    "jshint": "^2.10.2",
+    "jszip": "^3.2.2",
+    "mongoose": "^5.7.1",
+    "morgan": "^1.9.1",
+    "papaparse": "^5.1.0",
+    "readline": "^1.3.0",
+    "stream": "0.0.2",
+    "vizier-model": "0.0.1",
+    "winston": "^3.2.1"
+  },
   "devDependencies": {
     "@types/adm-zip": "^0.4.32",
     "@types/app-root-path": "^1.2.4",
+    "@types/cors": "^2.8.6",
     "@types/express": "^4.17.1",
     "@types/mongoose": "^5.5.17",
+    "@types/morgan": "^1.7.37",
     "@types/node": "^12.7.5",
     "@types/papaparse": "^5.0.1",
     "@types/winston": "^2.4.4",
@@ -24,20 +44,5 @@
     "rimraf": "^3.0.0",
     "tslint": "^5.20.0",
     "typescript": "^3.6.3"
-  },
-  "dependencies": {
-    "adm-zip": "^0.4.13",
-    "app-root-path": "^2.2.1",
-    "body-parser": "^1.19.0",
-    "express": "^4.17.1",
-    "express-validator": "^6.2.0",
-    "jshint": "^2.10.2",
-    "jszip": "^3.2.2",
-    "mongoose": "^5.7.1",
-    "papaparse": "^5.1.0",
-    "readline": "^1.3.0",
-    "stream": "0.0.2",
-    "vizier-model": "0.0.1",
-    "winston": "^3.2.1"
   }
 }
