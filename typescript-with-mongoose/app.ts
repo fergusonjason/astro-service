@@ -3,6 +3,7 @@ import cors from "cors";
 import morgan from "morgan";
 import mongoose from "mongoose";
 import approot from "app-root-path";
+import fs from "fs";
 
 import { logger } from "./src/util/winston";
 
@@ -20,11 +21,40 @@ mongoose.connect("mongodb://172.17.0.1:27017/astro",
         useUnifiedTopology: true,
         useCreateIndex: true});
 
+mongoose.connection.on("connected", () => {
+    logger.debug("MongoDB connected");
+});
+
+mongoose.connection.on("disconnected", () => {
+    logger.debug("MongoDB disconnected");
+});
+
+mongoose.connection.on("error", (err) => {
+    logger.debug(`MongoDB error: ${err}`);
+});
+
+process.on("SIGINT", () => {
+    mongoose.connection.close(() => {
+        logger.debug("Mongoose default connection disconnected through app termination");
+        process.exit(0);
+    });
+});
+
+const timestamp : string = fs.readFileSync("buildtime.txt").toString();
+logger.debug(`Build: ${timestamp}`);
+
 const app : express.Application = express();
 const port : number = 3000;
 
 app.use(morgan("combined"));
 app.use(cors);
+
+app.use((req, res, next): void => {
+    logger.debug("Configuring CORS to allow all origins");
+    res.header("Access-Control-Allow-Origin", "*"); // this is probably dangerous in prod
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 
 // TODO: eventually need to implement some sort of DI container
 const controllers : IInitializesRoutes[] = [new HdController(), new YaleController(), new Ngc2000Controller(),
