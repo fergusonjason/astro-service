@@ -4,11 +4,13 @@
   "description": "Simple Astro Service",
   "main": "app.js",
   "scripts": {
-    "build": "npm-run-all clean tsc",
+    "build": "npm-run-all timestamp clean tsc",
     "clean": "rimraf dist/*",
-    "dockerize" : "docker build -t fergusonjason/astro-service-ts-express-mongo .",
+    "dockerbuild" : "docker build -t fergusonjason/astro-service-ts-express-mongo .",
+    "dockerize" : "npm-run-all timestamp build dockerbuild",
     "start": "node ./dist/app.js",
     "tsc": "tsc",
+    "timestamp" : "date > buildtime.txt",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Jason",
