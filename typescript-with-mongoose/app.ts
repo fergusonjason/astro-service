@@ -1,5 +1,4 @@
 import express from "express";
-import cors from "cors";
 import morgan from "morgan";
 import mongoose from "mongoose";
 import approot from "app-root-path";
@@ -47,7 +46,6 @@ const app : express.Application = express();
 const port : number = 3000;
 
 app.use(morgan("combined"));
-app.use(cors);
 
 app.use((req, res, next): void => {
     logger.debug("Configuring CORS to allow all origins");
@@ -65,9 +63,4 @@ controllers.forEach((ctrl : IInitializesRoutes) => {
 
 app.listen(port, () => {
     logger.debug(`Application listening on port ${port}`);
-    app._router.stack.forEach((r : any) => {
-        if (r.route && r.route.path) {
-            logger.debug(`Found route: ${r.route.path}`);
-        }
-    });
 });
