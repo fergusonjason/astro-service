@@ -8,10 +8,6 @@ export class GlieseRepository extends BaseRepository<IGliese> {
         super(GLIESE_MODEL, "GlieseRepository");
     }
 
-    public getByNaturalId(id : string | number): Promise<IGliese | null> {
-        throw new Error("Method not implemented.");
-    }
-
     public getByName(id : string): Promise<IGliese[] | null> {
 
         const result : Promise<IGliese[] | null> = GLIESE_MODEL.find({Name: id}).exec();

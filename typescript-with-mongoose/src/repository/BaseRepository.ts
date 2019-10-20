@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import {CommandCursor } from "mongodb";
 import { logger } from "../util/winston";
-import { IQueryObj } from "./QueryObj";
 import { IMongoQuery } from "../model/MongoQuery";
 
 export abstract class BaseRepository<T extends mongoose.Document> {
@@ -39,8 +38,6 @@ export abstract class BaseRepository<T extends mongoose.Document> {
 
         return result;
     }
-
-    public abstract getByNaturalId(id : number | string) : Promise<T | null>;
 
     public getPage = async (query : IMongoQuery ) : Promise<T[]> => {
 
