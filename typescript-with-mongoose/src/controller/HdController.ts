@@ -1,11 +1,17 @@
 import express, { Request, Response, Router } from "express";
+import { check, validationResult, ValidationError, Result } from "express-validator";
+
 import { logger } from "../util/winston";
-import { IHd } from "../model/HD";
 import { BaseController } from "./BaseController";
 import { HdRepository } from "../repository/HdRepository";
+
+import { IHd } from "../model/HD";
+import { IMongoQuery } from "../model/MongoQuery";
 import { IInitializesRoutes } from "./InitializesRoutes";
 import { IPagedDataResponse } from "./PagedDataResponse";
-import { check, validationResult, ValidationError, Result } from "express-validator";
+
+import { getQueryString, parseUrl } from "../util/QueryProcessor";
+import { BaseRepository } from "../repository/BaseRepository";
 
 export class HdController extends BaseController<IHd> implements IInitializesRoutes {
 
@@ -39,10 +45,11 @@ export class HdController extends BaseController<IHd> implements IInitializesRou
         ], this.get);
         this.router.get(`${this.prefix}/count`, this.count);
         this.router.get(`${this.prefix}/getAll`, this.getAll);
-        this.router.get(`${this.prefix}/page`, [
-            check("start").exists().withMessage("start is mandatory").isNumeric().withMessage("start must be numeric"),
-            check("pageSize").exists().withMessage("pageSize is mandatory").isNumeric().withMessage("pageSize must be numeric")
-        ], this.page);
+        this.router.get(`${this.prefix}/page`, this.page);
+    }
+
+    public getRepository = () : BaseRepository<IHd> => {
+        return this.hdRepository;
     }
 
     public get = async (req : Request, res : Response) : Promise<void> => {
@@ -96,29 +103,4 @@ export class HdController extends BaseController<IHd> implements IInitializesRou
 
     }
 
-    public page = async (req : Request, res : Response) : Promise<void> => {
-
-        logger.debug(`HDController: entered page(), query params: ${JSON.stringify(req.query)}`);
-
-        const start : number = parseInt(req.query.start, 10);
-        const pageSize : number = parseInt(req.query.pageSize, 10);
-        const field : string = req.query.field;
-        const sortDir : number = req.query.sortDir;
-
-        try {
-            const count : number = await this.hdRepository.count();
-            const items : IHd[] = await this.hdRepository.getPage(start, pageSize, field, sortDir);
-            const result : IPagedDataResponse<IHd[]> = {
-                result : items,
-                start: start,
-                stop: start + pageSize,
-                totalRecords: count
-            };
-
-            res.json(result);
-        } catch (err) {
-            res.status(500).send(`Error: ${err}`);
-        }
-
-    }
 }

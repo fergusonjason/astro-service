@@ -3,8 +3,8 @@ import { IInitializesRoutes } from "./InitializesRoutes";
 import express, { Request, Response} from "express";
 import { Ngc2000Repository } from "../repository/Ngc2000Repository";
 import { BaseController } from "./BaseController";
-import { IPagedDataResponse } from "./PagedDataResponse";
 import { logger } from "../util/winston";
+import { BaseRepository } from "../repository/BaseRepository";
 
 export class Ngc2000Controller extends BaseController<INgc2000> implements IInitializesRoutes {
 
@@ -39,7 +39,11 @@ export class Ngc2000Controller extends BaseController<INgc2000> implements IInit
         this.router.get(`${this.pathPrefix}/page`, this.page);
     }
 
-    public get = async (req : express.Request, res : express.Response): Promise<void> => {
+    public getRepository = () : BaseRepository<INgc2000> => {
+        return this._repository;
+    }
+
+    public get = async (req : Request, res : Response): Promise<void> => {
 
         logger.debug(`Ngc2000Controller: entered get(), id: ${req.query.id}`);
 
@@ -49,31 +53,14 @@ export class Ngc2000Controller extends BaseController<INgc2000> implements IInit
         res.json(result);
     }
 
-    public getAll = async (req : express.Request, res : express.Response): Promise<void> => {
+    public getAll = async (req : Request, res : Response): Promise<void> => {
         throw new Error("Method not implemented.");
     }
 
-    public count = async (req : express.Request, res : express.Response): Promise<void> => {
+    public count = async (req : Request, res : Response): Promise<void> => {
 
         const result : number = await this._repository.count();
         res.send(result);
     }
 
-    public page = async (req : express.Request, res : express.Response): Promise<void> => {
-
-        const start : number = Number(req.query.start);
-        const end : number = Number(req.query.end);
-
-        const count : number = await this._repository.count();
-        const items : INgc2000[] = await this._repository.getPage(start, end);
-
-        const result : IPagedDataResponse<INgc2000[]> = {
-            result: items,
-            start: start,
-            stop : end,
-            totalRecords : count
-        };
-
-        res.json(result);
-    }
 }
