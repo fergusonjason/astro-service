@@ -69,18 +69,4 @@ export class HdController extends BaseController<IHd> implements IInitializesRou
         }
     }
 
-    public count = async (req : Request, res : Response) : Promise<void> => {
-
-        logger.debug("HdController: entered count()");
-
-        try {
-            const count : number = await this.hdRepository.count();
-            const result : object = {count : count};
-            res.send(result);
-        } catch (err) {
-            res.status(500).send(`Error: ${err}`);
-        }
-
-    }
-
 }

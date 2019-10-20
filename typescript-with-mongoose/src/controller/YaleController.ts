@@ -55,14 +55,6 @@ export class YaleController extends BaseController<IYale> implements IInitialize
         return "HR";
     }
 
-    public count = async (req : Request, res : Response): Promise<void> => {
-
-        logger.debug("YaleController: entered count()");
-
-        const count : number = await this.repository.count();
-        res.send(count);
-    }
-
     public getAll(req : Request, res : Response): void {
         res.status(400).send("getAll is a bad idea");
     }

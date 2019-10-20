@@ -15,9 +15,13 @@ export abstract class BaseController<T extends mongoose.Document>  {
 
     public abstract getNaturalIdField() : string;
 
-    public abstract count(req : Request, res : Response) : void;
+    public count = async (req : Request, res : Response) : Promise<void> => {
 
-    // public abstract get(req : Request, res : Response) : void;
+        const count : number = await this.getRepository().count();
+        const result : object = {count : count};
+        res.send(result);
+    }
+
     public get = async (req : Request, res : Response) : Promise<void> => {
 
         const id : number = req.query.id;
@@ -33,10 +37,8 @@ export abstract class BaseController<T extends mongoose.Document>  {
             let result : T[];
             if (isNaN(convertedId)) {
                 query.filter = {[this.getNaturalIdField()] : id};
-                // result = await this.getRepository().getPage({[this.getNaturalIdField()] : id});
             } else {
                 query.filter = {[this.getNaturalIdField()] : convertedId};
-                // result = await this.getRepository().getPage({[this.getNaturalIdField()] : convertedId});
             }
 
             result = await this.getRepository().getPage(query);

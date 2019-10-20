@@ -49,13 +49,6 @@ export class GlieseController extends BaseController<IGliese> implements IInitia
         return "name";
     }
 
-    public count = async (req : express.Request, res : express.Response): Promise<void> => {
-
-        logger.debug("GlieseController: entered count()");
-        const result : number = await this.repository.count();
-        res.send(result);
-    }
-
     public getAll = async (req : express.Request, res : express.Response): Promise<void> => {
         throw new Error("Method not implemented.");
     }

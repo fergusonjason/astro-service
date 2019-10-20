@@ -51,10 +51,4 @@ export class Ngc2000Controller extends BaseController<INgc2000> implements IInit
         throw new Error("Method not implemented.");
     }
 
-    public count = async (req : Request, res : Response): Promise<void> => {
-
-        const result : number = await this._repository.count();
-        res.send(result);
-    }
-
 }
