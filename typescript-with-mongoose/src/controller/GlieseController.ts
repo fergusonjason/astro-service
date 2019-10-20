@@ -46,6 +46,10 @@ export class GlieseController extends BaseController<IGliese> implements IInitia
         return this.repository;
     }
 
+    public getNaturalIdField = () : string => {
+        return "name";
+    }
+
     public count = async (req : express.Request, res : express.Response): Promise<void> => {
 
         logger.debug("GlieseController: entered count()");

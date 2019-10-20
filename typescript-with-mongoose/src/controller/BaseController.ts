@@ -11,13 +11,15 @@ export abstract class BaseController<T extends mongoose.Document>  {
 
     public abstract initializeRoutes() : void;
 
+    public abstract getRepository() : BaseRepository<T>;
+
+    public abstract getNaturalIdField() : string;
+
     public abstract count(req : Request, res : Response) : void;
 
     public abstract get(req : Request, res : Response) : void;
 
     public abstract getAll(req : Request, res : Response) : void;
-
-    public abstract getRepository() : BaseRepository<T>;
 
     public page = async (req : Request, res : Response) : Promise<void> => {
 
@@ -30,6 +32,10 @@ export abstract class BaseController<T extends mongoose.Document>  {
 
         if (!query.limit) {
             query.limit = 20;
+        }
+
+        if (!query.sort) {
+            query.sort = {[this.getNaturalIdField()] : 1};
         }
 
         const items : T[] = await this.getRepository().getPage(query);

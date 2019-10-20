@@ -43,6 +43,10 @@ export class Ngc2000Controller extends BaseController<INgc2000> implements IInit
         return this._repository;
     }
 
+    public getNaturalIdField = () : string => {
+        return "name";
+    }
+
     public get = async (req : Request, res : Response): Promise<void> => {
 
         logger.debug(`Ngc2000Controller: entered get(), id: ${req.query.id}`);

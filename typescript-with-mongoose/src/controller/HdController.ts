@@ -52,6 +52,10 @@ export class HdController extends BaseController<IHd> implements IInitializesRou
         return this.hdRepository;
     }
 
+    public getNaturalIdField = () : string => {
+        return "HD";
+    }
+
     public get = async (req : Request, res : Response) : Promise<void> => {
 
         logger.debug(`HDController: entered get(), id: ${req.query.id}`);

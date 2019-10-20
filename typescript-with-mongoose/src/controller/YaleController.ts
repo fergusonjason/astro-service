@@ -51,6 +51,10 @@ export class YaleController extends BaseController<IYale> implements IInitialize
         return this.repository;
     }
 
+    public getNaturalIdField = () : string => {
+        return "HR";
+    }
+
     public count = async (req : Request, res : Response): Promise<void> => {
 
         logger.debug("YaleController: entered count()");
