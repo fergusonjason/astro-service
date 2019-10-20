@@ -14,15 +14,15 @@ export class HdController extends BaseController<IHd> implements IInitializesRou
 
     public router : Router;
 
-    private prefix : string = `${this._apiVersion}/hd`;
-    private hdRepository : HdRepository;
+    private _prefix : string = `${this._apiVersion}/hd`;
+    private _repository : HdRepository;
 
     constructor() {
         super();
 
         logger.debug("Initializing HdController");
         this.router = express.Router();
-        this.hdRepository = new HdRepository();
+        this._repository = new HdRepository();
 
         this.initializeRoutes();
 
@@ -37,16 +37,16 @@ export class HdController extends BaseController<IHd> implements IInitializesRou
 
         logger.debug("Initializing routers for hd");
 
-        this.router.get(`${this.prefix}`, [
+        this.router.get(`${this._prefix}`, [
             check("id").exists().withMessage("id is mandatory").isNumeric().withMessage("id must be numeric")
         ], this.get);
-        this.router.get(`${this.prefix}/count`, this.count);
-        this.router.get(`${this.prefix}/getAll`, this.getAll);
-        this.router.get(`${this.prefix}/page`, this.page);
+        this.router.get(`${this._prefix}/count`, this.count);
+        this.router.get(`${this._prefix}/getAll`, this.getAll);
+        this.router.get(`${this._prefix}/page`, this.page);
     }
 
     public getRepository = () : BaseRepository<IHd> => {
-        return this.hdRepository;
+        return this._repository;
     }
 
     public getNaturalIdField = () : string => {
@@ -58,7 +58,7 @@ export class HdController extends BaseController<IHd> implements IInitializesRou
         logger.debug(`HDController: entered getAll()`);
 
         try {
-            let result : IHd[] | null = await this.hdRepository.getAll();
+            let result : IHd[] | null = await this._repository.getAll();
             if (result == null) {
                 result = [];
             }

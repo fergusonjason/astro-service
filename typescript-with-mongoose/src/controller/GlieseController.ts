@@ -11,8 +11,8 @@ export class GlieseController extends BaseController<IGliese> implements IInitia
 
     public router : Router;
 
-    private prefix : string = `${this._apiVersion}/gliese`;
-    private repository : GlieseRepository;
+    private _prefix : string = `${this._apiVersion}/gliese`;
+    private _repository : GlieseRepository;
 
     constructor() {
         super();
@@ -20,7 +20,7 @@ export class GlieseController extends BaseController<IGliese> implements IInitia
         logger.debug("Initializing YaleController");
 
         this.router = express.Router();
-        this.repository = new GlieseRepository();
+        this._repository = new GlieseRepository();
 
         this.initializeRoutes();
 
@@ -35,14 +35,14 @@ export class GlieseController extends BaseController<IGliese> implements IInitia
 
         logger.debug("Initializing routers for yale");
 
-        this.router.get(`${this.prefix}/count`, this.count);
-        this.router.get(`${this.prefix}`, this.get);
-        this.router.get(`${this.prefix}/getAll`, this.getAll);
-        this.router.get(`${this.prefix}/page`, this.page);
+        this.router.get(`${this._prefix}/count`, this.count);
+        this.router.get(`${this._prefix}`, this.get);
+        this.router.get(`${this._prefix}/getAll`, this.getAll);
+        this.router.get(`${this._prefix}/page`, this.page);
     }
 
     public getRepository = () : BaseRepository<IGliese> => {
-        return this.repository;
+        return this._repository;
     }
 
     public getNaturalIdField = () : string => {

@@ -10,7 +10,7 @@ export class Ngc2000Controller extends BaseController<INgc2000> implements IInit
 
     public router: express.Router;
 
-    private pathPrefix : string = `${this._apiVersion}/ngc2000`;
+    private _prefix : string = `${this._apiVersion}/ngc2000`;
     private _repository : Ngc2000Repository;
 
     constructor() {
@@ -33,10 +33,10 @@ export class Ngc2000Controller extends BaseController<INgc2000> implements IInit
 
         logger.debug("Initializing routers for ngc2000");
 
-        this.router.get(`${this.pathPrefix}`, this.get);
-        this.router.get(`${this.pathPrefix}/getAll`, this.getAll);
-        this.router.get(`${this.pathPrefix}/count`, this.count);
-        this.router.get(`${this.pathPrefix}/page`, this.page);
+        this.router.get(`${this._prefix}`, this.get);
+        this.router.get(`${this._prefix}/getAll`, this.getAll);
+        this.router.get(`${this._prefix}/count`, this.count);
+        this.router.get(`${this._prefix}/page`, this.page);
     }
 
     public getRepository = () : BaseRepository<INgc2000> => {

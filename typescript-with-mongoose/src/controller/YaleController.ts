@@ -15,8 +15,8 @@ export class YaleController extends BaseController<IYale> implements IInitialize
 
     public router : Router;
 
-    private prefix : string = `${this._apiVersion}/yale`;
-    private repository : YaleRepository;
+    private _prefix : string = `${this._apiVersion}/yale`;
+    private _repository : YaleRepository;
 
     constructor() {
         super();
@@ -24,7 +24,7 @@ export class YaleController extends BaseController<IYale> implements IInitialize
         logger.debug("Initializing YaleController");
 
         this.router = express.Router();
-        this.repository = new YaleRepository();
+        this._repository = new YaleRepository();
 
         this.initializeRoutes();
 
@@ -39,16 +39,16 @@ export class YaleController extends BaseController<IYale> implements IInitialize
 
         logger.debug("Initializing routers for yale");
 
-        this.router.get(`${this.prefix}/count`, this.count);
-        this.router.get(`${this.prefix}`, [
+        this.router.get(`${this._prefix}/count`, this.count);
+        this.router.get(`${this._prefix}`, [
             check("id").exists().withMessage("id is mandatory").isNumeric().withMessage("id must be numeric")
         ], this.get);
-        this.router.get(`${this.prefix}/getAll`, this.getAll);
-        this.router.get(`${this.prefix}/page`, this.page);
+        this.router.get(`${this._prefix}/getAll`, this.getAll);
+        this.router.get(`${this._prefix}/page`, this.page);
     }
 
     public getRepository = () : BaseRepository<IYale> => {
-        return this.repository;
+        return this._repository;
     }
 
     public getNaturalIdField = () : string => {
