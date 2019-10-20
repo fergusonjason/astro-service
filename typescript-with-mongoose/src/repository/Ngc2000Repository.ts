@@ -14,9 +14,4 @@ export class Ngc2000Repository extends BaseRepository<INgc2000> {
         return await this._model.findOne({Name : parseInt(id, 10)});
     }
 
-    public getPage = async (start : number, stop : number): Promise<INgc2000[]> => {
-
-        return await this._model.find().exec();
-
-    }
 }

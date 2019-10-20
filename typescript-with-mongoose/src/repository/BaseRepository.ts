@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
-import {CommandCursor} from "mongodb";
+import {CommandCursor } from "mongodb";
 import { logger } from "../util/winston";
 import { IQueryObj } from "./QueryObj";
+import { IMongoQuery } from "../model/MongoQuery";
 
 export abstract class BaseRepository<T extends mongoose.Document> {
 
@@ -41,43 +42,70 @@ export abstract class BaseRepository<T extends mongoose.Document> {
 
     public abstract getByNaturalId(id : number | string) : Promise<T | null>;
 
-    public getPage = async (start : number, pageSize : number, field? : string, sortDir? : number,
-                            filterOp? : string, filterVal? : string | number) : Promise<T[]> => {
+    public getPage = async (query : IMongoQuery ) : Promise<T[]> => {
 
-        logger.debug(`${this._className} (base): entered getPage(): start: ${start}, pageSize: ${pageSize},
-        field: ${field}, sortDir: ${sortDir}, filterOp: ${filterOp}, filterVal: ${filterVal}`);
+        logger.debug(`Entered getPage2(), query: ${JSON.stringify(query)}`);
 
-        if (!field) {
-            logger.debug("No field specified, using _id (you probably don't want this)");
-            field = "_id";
-        }
-
-        if (!sortDir) {
-            sortDir = 1;
-        }
-
-        const findObj : IQueryObj = {};
-        const sortObj : IQueryObj = {};
-        const mongoOp : string = "$" + filterOp;
-        if (filterOp && filterVal) {
-
-            sortObj[field] = sortDir;
-
-            switch (filterOp) {
-                case "startsWith" :
-                    const regexp : RegExp = new RegExp("^" + filterVal);
-                    findObj[field] = { $regex : regexp};
-                    break;
-                default:
-                    findObj[field] = { [mongoOp] : filterVal };
-            }
+        let mongoQuery;
+        if (query.filter) {
+            mongoQuery = this._model.find(query.filter);
         } else {
-            sortObj[field] = sortDir;
+            mongoQuery = this._model.find({});
         }
 
-        logger.debug(`Findobj: ${JSON.stringify(findObj)}, sortobj: ${JSON.stringify(sortObj)}`);
+        if (query.sort) {
+            mongoQuery = mongoQuery.sort(query.sort);
+        }
 
-        return await this._model.find(findObj).sort(sortObj).skip(start)
-            .limit(pageSize).exec();
+        if (query.offset) {
+            mongoQuery = mongoQuery.skip(query.offset);
+        }
+
+        if (query.limit) {
+            mongoQuery = mongoQuery.limit(query.limit);
+        }
+
+        return await mongoQuery.exec();
+
     }
+
+    // public getPage = async (start : number, pageSize : number, field? : string, sortDir? : number,
+    //                         filterOp? : string, filterVal? : string | number) : Promise<T[]> => {
+
+    //     logger.debug(`${this._className} (base): entered getPage(): start: ${start}, pageSize: ${pageSize},
+    //     field: ${field}, sortDir: ${sortDir}, filterOp: ${filterOp}, filterVal: ${filterVal}`);
+
+    //     if (!field) {
+    //         logger.debug("No field specified, using _id (you probably don't want this)");
+    //         field = "_id";
+    //     }
+
+    //     if (!sortDir) {
+    //         sortDir = 1;
+    //     }
+
+    //     const findObj : IQueryObj = {};
+    //     const sortObj : IQueryObj = {};
+    //     const mongoOp : string = "$" + filterOp;
+    //     if (filterOp && filterVal) {
+
+    //         sortObj[field] = sortDir;
+
+    //         switch (filterOp) {
+    //             case "startsWith" :
+    //                 const regexp : RegExp = new RegExp("^" + filterVal);
+    //                 findObj[field] = { $regex : regexp};
+    //                 break;
+    //             default:
+    //                 findObj[field] = { [mongoOp] : filterVal };
+    //         }
+    //     } else {
+    //         sortObj[field] = sortDir;
+    //     }
+
+    //     logger.debug(`Findobj: ${JSON.stringify(findObj)}, sortobj: ${JSON.stringify(sortObj)}`);
+
+    //     return await this._model.find(findObj).sort(sortObj).skip(start)
+    //         .limit(pageSize).exec();
+    // }
 }
