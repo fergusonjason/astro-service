@@ -3,7 +3,6 @@ import { IGliese } from "../model/Gliese";
 import { IInitializesRoutes } from "./InitializesRoutes";
 import { GlieseRepository } from "../repository/GlieseRepository";
 import express, { Router } from "express";
-import { IPagedDataResponse } from "./PagedDataResponse";
 import { logger } from "../util/winston";
 import { check, validationResult, ValidationError, Result } from "express-validator";
 import { BaseRepository } from "../repository/BaseRepository";
@@ -55,14 +54,6 @@ export class GlieseController extends BaseController<IGliese> implements IInitia
         logger.debug("GlieseController: entered count()");
         const result : number = await this.repository.count();
         res.send(result);
-    }
-
-    public get = async (req : express.Request, res : express.Response): Promise<void> => {
-
-        logger.debug(`GlieseController: entered get(): id ${req.query.id}`);
-
-        const result : IGliese[] | null = await this.repository.getByName(req.query.id);
-        res.json(result);
     }
 
     public getAll = async (req : express.Request, res : express.Response): Promise<void> => {

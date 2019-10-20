@@ -6,11 +6,8 @@ import { BaseController } from "./BaseController";
 import { HdRepository } from "../repository/HdRepository";
 
 import { IHd } from "../model/HD";
-import { IMongoQuery } from "../model/MongoQuery";
 import { IInitializesRoutes } from "./InitializesRoutes";
-import { IPagedDataResponse } from "./PagedDataResponse";
 
-import { getQueryString, parseUrl } from "../util/QueryProcessor";
 import { BaseRepository } from "../repository/BaseRepository";
 
 export class HdController extends BaseController<IHd> implements IInitializesRoutes {
@@ -54,27 +51,6 @@ export class HdController extends BaseController<IHd> implements IInitializesRou
 
     public getNaturalIdField = () : string => {
         return "HD";
-    }
-
-    public get = async (req : Request, res : Response) : Promise<void> => {
-
-        logger.debug(`HDController: entered get(), id: ${req.query.id}`);
-
-        const id : number = req.query.id;
-        if (!id) {
-            res.status(400).send("No id provided");
-            return;
-        }
-
-        try {
-            let result : IHd | null | object = await this.hdRepository.getByNaturalId(id);
-            if (result == null) {
-                result = {};
-            }
-            res.json(result);
-        } catch (err) {
-            res.status(500).send(`Error occurred: ${err}`);
-        }
     }
 
     public getAll = async (req : Request, res : Response) : Promise<void> => {

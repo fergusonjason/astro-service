@@ -63,28 +63,6 @@ export class YaleController extends BaseController<IYale> implements IInitialize
         res.send(count);
     }
 
-    public get = async (req : Request, res : Response): Promise<void> => {
-
-        logger.debug(`YaleController: entered get(): id: ${req.query.id}`);
-
-        const errors : Result<ValidationError> = validationResult(req);
-        if (!errors.isEmpty()) {
-            logger.debug(`Errors found: ${JSON.stringify(errors.array())}`);
-            res.status(400).json({errors: errors.array()});
-            return;
-        }
-
-        const id : number = req.query.id;
-        try {
-            const result : IYale | null = await this.repository.getByNaturalId(id);
-            res.json(result);
-        } catch (err) {
-            res.status(400).send(`Error: ${err}`);
-            return;
-        }
-
-    }
-
     public getAll(req : Request, res : Response): void {
         res.status(400).send("getAll is a bad idea");
     }

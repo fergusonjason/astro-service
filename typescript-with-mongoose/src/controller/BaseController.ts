@@ -17,7 +17,35 @@ export abstract class BaseController<T extends mongoose.Document>  {
 
     public abstract count(req : Request, res : Response) : void;
 
-    public abstract get(req : Request, res : Response) : void;
+    // public abstract get(req : Request, res : Response) : void;
+    public get = async (req : Request, res : Response) : Promise<void> => {
+
+        const id : number = req.query.id;
+        if (!id) {
+            res.status(400).send("No id provided");
+            return;
+        }
+
+        const convertedId : number = +id;
+
+        try {
+            const query : IMongoQuery = {};
+            let result : T[];
+            if (isNaN(convertedId)) {
+                query.filter = {[this.getNaturalIdField()] : id};
+                // result = await this.getRepository().getPage({[this.getNaturalIdField()] : id});
+            } else {
+                query.filter = {[this.getNaturalIdField()] : convertedId};
+                // result = await this.getRepository().getPage({[this.getNaturalIdField()] : convertedId});
+            }
+
+            result = await this.getRepository().getPage(query);
+
+            res.json(result);
+        } catch (err) {
+            res.status(500).send(`Error occurred: ${err}`);
+        }
+    }
 
     public abstract getAll(req : Request, res : Response) : void;
 
