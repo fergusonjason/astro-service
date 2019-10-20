@@ -24,27 +24,20 @@ export abstract class BaseController<T extends mongoose.Document>  {
         const queryString : string = getQueryString(req.url);
         const query : IMongoQuery = parseUrl(queryString);
 
-        const items : T[] = await this.getRepository().getPage(query);
-        let offset : number;
-        if (query.offset) {
-            offset = query.offset;
-        } else {
-            // by default start with the first record
-            offset = 0;
+        if (!query.offset) {
+            query.offset = 0;
         }
 
-        let limit : number;
-        if (query.limit) {
-            limit = query.limit;
-        } else {
-            // set a default limit so I don't get hundreds of thousands of results
-            limit = 20;
+        if (!query.limit) {
+            query.limit = 20;
         }
+
+        const items : T[] = await this.getRepository().getPage(query);
 
         const result : IPagedDataResponse<T[]> = {
             result : items,
-            start: offset,
-            stop: offset + limit,
+            start: query.offset,
+            stop: query.offset + query.limit,
             totalRecords: items.length
         };
 
