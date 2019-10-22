@@ -1,3 +1,5 @@
+"use strict";
+
 // I like "yes" more than "no", so I like this better than !isNaN()
 function isNumeric(num) {
     return !isNaN(parseFloat(num)) && isFinite(num);
@@ -6,7 +8,7 @@ function isNumeric(num) {
 // okay, yes, I know, one function, one job, this should be "trimCollection()"
 // and convertBlankStringsToNull()
 function fixCollection(collectionName) {
-    var counter = 0;
+    let counter = 0;
     let opArray = [];
     db[collectionName].find().forEach((doc) => {
 
@@ -129,7 +131,7 @@ function createCrossReference(collectionName, fields) {
         return;
     }
 
-    if (!field || field == null || !Array.isArray(fields)) {
+    if (!fields || fields === null || !Array.isArray(fields)) {
         return;
     }
 
@@ -195,10 +197,8 @@ function fixDm(collectionName) {
             counter++;
 
             if (counter % 1000 === 0) {
-                if (counter % 1000 === 0) {
-                    db[collectionName].bulkWrite(opArray);
-                    opArray = [];
-                }
+                db[collectionName].bulkWrite(opArray);
+                opArray = [];
             }
         }
 
@@ -208,6 +208,7 @@ function fixDm(collectionName) {
     opArray = [];
 }
 
+
 // commands
 
 // hd (has no cross ref fields)
@@ -216,22 +217,42 @@ groupLocations("hd", "B1900", "RAB1900", "DEB1900");
 groupLocations("hd", "ICRS", "_RAicrs", "_DEicrs");
 db.hd.createIndex({"HD":1});
 
+db.hd.update({}, {$unset: {q_Ptm: 1}}, false, true);
+db.hd.update({}, {$unset: {n_Ptm: 1}}, false, true);
+db.hd.update({}, {$unset: {n_Ptg: 1}}, false, true);
+db.hd.update({}, {$rename : {"SpT":"SpectralType"}}, false, true);
+db.hd.update({}, {$rename : {"Int":"intensity"}}, false, true);
 
 // yale
 fixCollection("yale");
 groupLocations("yale", "J2000", "RAJ2000", "DEJ2000");
 createCrossReference("yale",["HD","SAO","ADS","VarID"]);
-db.yale.update({}, {$rename : {"SpType":"SpT"}}, false, true); // standardize Sp field name to SpT
+db.yale.update({}, {$rename : {"SpType":"SpectralType"}}, false, true); // standardize Sp field name to SpT
+db.yale.update({}, {$rename : {"Vmag":"VisualMagnitude"}}, false, true);
+db.yale.update({}, {$rename : {"Name":"name"}}, false, true);
 db.yale.createIndex({"HR":1});
 
 // ngc2000
 fixCollection("ngc2000");
 groupLocations("ngc2000", "B2000", "RAB2000", "DEB2000");
+db.ngc2000.update({}, {$rename : {"Name":"name"}}, false, true);
+db.ngc2000.update({}, {$rename : {"Const":"constellation"}}, false, true);
+db.ngc2000.update({}, {$rename : {"Type":"type"}}, false, true);
+db.ngc2000.update({}, {$rename : {"mag":"magnitude"}}, false, true);
+db.ngc2000.update({}, {$rename : {"Source":"source"}}, false, true);
+db.ngc2000.update({}, {$unset: {l_size: 1}}, false, true);
 db.ngc2000.createIndex({"Name" : 1});
 
 // gliese
 fixCollection("gliese");
 groupLocations("gliese", "B1950", "RAB1950", "DEB1950");
 groupLocations("gliese", "ICRS", "_RAicrs", "_DEicrs");
-db.gliese.update({}, {$rename : {"Sp":"SpT"}}, false, true); // standardize Sp field name to SpT
+db.gliese.update({}, {$rename : {"Sp":"SpectralType"}}, false, true); // standardize Sp field name to SpT
+db.gliese.update({}, {$rename : {"VMag":"VisualMagnitude"}}, false, true);
+db.gliese.update({}, {$rename : {"RV":"RadialVelocity"}}, false, true);
 db.gliese.createIndex({"Name" : 1});
+
+db.runCommand({compact: "hd"});
+db.runCommand({compact: "yale"});
+db.runCommand({compact: "ngc2000"});
+db.runCommand({compact: "gliese"});
