@@ -3,9 +3,11 @@ import { getQueryString, parseUrl } from "../util/QueryProcessor";
 import { IMongoQuery } from "../model/MongoQuery";
 import { BaseRepository } from "../repository/BaseRepository";
 import { IPagedDataResponse } from "./PagedDataResponse";
-import mongoose from "mongoose";
+import { Document } from "mongoose";
+import querystring, { ParsedUrlQuery } from "querystring";
+import { logger } from "../util/winston";
 
-export abstract class BaseController<T extends mongoose.Document>  {
+export abstract class BaseController<T extends Document>  {
 
     protected _apiVersion : string = "/v1";
 
@@ -53,27 +55,20 @@ export abstract class BaseController<T extends mongoose.Document>  {
 
     public page = async (req : Request, res : Response) : Promise<void> => {
 
-        const queryString : string = getQueryString(req.url);
-        const query : IMongoQuery = parseUrl(queryString);
+        // process the URL into a ParsedUrlQuery
+        const mongoQuery: IMongoQuery = parseUrl(req.url);
 
-        if (!query.offset) {
-            query.offset = 0;
-        }
+        logger.debug(`Mongo Query: ${JSON.stringify(mongoQuery)}`);
 
-        if (!query.limit) {
-            query.limit = 20;
-        }
+        const items : T[] = await this.getRepository().getPage(mongoQuery);
 
-        if (!query.sort) {
-            query.sort = {[this.getNaturalIdField()] : 1};
-        }
-
-        const items : T[] = await this.getRepository().getPage(query);
+        const start: number = (mongoQuery.offset) ? mongoQuery.offset : 0;
+        const stop: number = start + ((mongoQuery.limit) ? mongoQuery.limit : 20);
 
         const result : IPagedDataResponse<T[]> = {
             result : items,
-            start: query.offset,
-            stop: query.offset + query.limit,
+            start: start,
+            stop: stop,
             totalRecords: items.length
         };
 

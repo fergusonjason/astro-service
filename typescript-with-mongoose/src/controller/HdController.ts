@@ -37,6 +37,7 @@ export class HdController extends BaseController<IHd> implements IInitializesRou
 
         logger.debug("Initializing routers for hd");
 
+
         this.router.get(`${this._prefix}`, [
             check("id").exists().withMessage("id is mandatory").isNumeric().withMessage("id must be numeric")
         ], this.get);
