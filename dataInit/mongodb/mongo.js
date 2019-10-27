@@ -252,7 +252,34 @@ db.gliese.update({}, {$rename : {"VMag":"VisualMagnitude"}}, false, true);
 db.gliese.update({}, {$rename : {"RV":"RadialVelocity"}}, false, true);
 db.gliese.createIndex({"Name" : 1});
 
+// hipparcos
+fixCollection("hipparcos");
+groupLocations("hipparcos","ICRS","RAicrs","DEicrs");
+db.hipparcos.update({}, {$rename: {"HIP":"ID"}}, false, true);
+db.hipparcos.update({}, {$rename: {"B-V":"BV"}}, false, true);
+db.hipparcos.update({}, {$rename: {"SpType":"SpectralType"}}, false, true);
+db.hipparcos.update({}, {$rename : {"VMag":"VisualMagnitude"}}, false, true);
+db.hipparcos.createIndex({"ID":1});
+
+// boss
+fixCollection("boss");
+groupLocations("boss","B1950","RA1950","DE1950");
+groupLocations("boss","ICRS","RAicrs","DEicrs");
+db.boss.update({}, {$rename: {"GC":"ID"}}, false, true);
+db.boss.createIndex({"ID":1});
+
+// sao
+fixCollection("sao");
+groupLocations("sao","B1950","RAB1950","DEB1950");
+groupLocations("sao","ICRS","RAicrs","DEicrs");
+db.sao.update({}, {$rename: {"SAO":"ID"}}, false, true);
+db.sao.update({}, {$rename: {"SpType":"SpectralType"}}, false, true);
+db.sao.createIndex({"ID":1});
+
 db.runCommand({compact: "hd"});
 db.runCommand({compact: "yale"});
 db.runCommand({compact: "ngc2000"});
 db.runCommand({compact: "gliese"});
+db.runCommand({compact: "hipparcos"});
+db.runCommand({compact: "boss"});
+db.runCommand({compact: "sao"});
