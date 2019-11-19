@@ -7,3 +7,4 @@ mongoimport --db astro --collection crossindex --type tsv crossindex.tsv --heade
 mongoimport --db astro --collection hipparcos --type tsv hipparcos.tsv --headerline
 mongoimport --db astro --collection sao --type tsv sao.tsv --headerline
 mongoimport --db astro --collection boss --type tsv boss.tsv --headerline
+mongoimport --db astro --collection gliese2 --type tsv gliese2.tsv --headerline

@@ -246,10 +246,19 @@ db.ngc2000.createIndex({"Name" : 1});
 // gliese
 fixCollection("gliese");
 groupLocations("gliese", "B1950", "RAB1950", "DEB1950");
-groupLocations("gliese", "ICRS", "_RAicrs", "_DEicrs");
+groupLocations("gliese", "ICRS", "RAicrs", "DEicrs");
+
 db.gliese.update({}, {$rename : {"Sp":"SpectralType"}}, false, true); // standardize Sp field name to SpT
 db.gliese.update({}, {$rename : {"VMag":"VisualMagnitude"}}, false, true);
 db.gliese.update({}, {$rename : {"RV":"RadialVelocity"}}, false, true);
+db.gliese.createIndex({"Name" : 1});
+
+// gliese2
+fixCollection("gliese2");
+groupLocations("gliese2", "B1950", "RAB1950", "DEB1950");
+groupLocations("gliese2", "ICRS", "_RAicrs", "_DEicrs");
+createCrossReference("gliese2",["HD"]);
+createCrossReference("gliese2",["OtherName"]);
 db.gliese.createIndex({"Name" : 1});
 
 // hipparcos
@@ -272,6 +281,7 @@ db.boss.createIndex({"ID":1});
 fixCollection("sao");
 groupLocations("sao","B1950","RAB1950","DEB1950");
 groupLocations("sao","ICRS","RAicrs","DEicrs");
+createCrossReference("sao",["HD"]);
 db.sao.update({}, {$rename: {"SAO":"ID"}}, false, true);
 db.sao.update({}, {$rename: {"SpType":"SpectralType"}}, false, true);
 db.sao.createIndex({"ID":1});
