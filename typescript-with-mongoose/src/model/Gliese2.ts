@@ -34,4 +34,4 @@ const schema : mongoose.Schema = new mongoose.Schema({
     coordinates       : ICOORDINATES_SET_SCHEMA,
 });
 
-export const GLIESE2_MODEL : mongoose.Model<IGliese2> = mongoose.model<IGliese2>("gliese", schema, "gliese");
+export const GLIESE2_MODEL : mongoose.Model<IGliese2> = mongoose.model<IGliese2>("gliese2", schema, "gliese2");
