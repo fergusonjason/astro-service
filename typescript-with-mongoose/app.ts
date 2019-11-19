@@ -12,6 +12,7 @@ import { HdController } from "./src/controller/HdController";
 import { YaleController } from "./src/controller/YaleController";
 import { Ngc2000Controller } from "./src/controller/Ngc2000Controller";
 import { GlieseController } from "./src/controller/GlieseController";
+import { Gliese2Controller } from "./src/controller/Gliese2Controller";
 
 logger.debug(`Basedir: ${approot}`);
 
@@ -56,7 +57,7 @@ app.use((req, res, next): void => {
 
 // TODO: eventually need to implement some sort of DI container
 const controllers : IInitializesRoutes[] = [new HdController(), new YaleController(), new Ngc2000Controller(),
-        new GlieseController()];
+        new GlieseController(), new Gliese2Controller()];
 controllers.forEach((ctrl : IInitializesRoutes) => {
     app.use("/", ctrl.router);
 });
