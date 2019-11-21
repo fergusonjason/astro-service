@@ -65,11 +65,14 @@ export abstract class BaseController<T extends Document>  {
         const start: number = (mongoQuery.offset) ? mongoQuery.offset : 0;
         const stop: number = start + ((mongoQuery.limit) ? mongoQuery.limit : 20);
 
+        const filter : any = mongoQuery.filter ? mongoQuery.filter : {};
+        const recordCount: number = await this.getRepository().getCount(filter);
+
         const result : IPagedDataResponse<T[]> = {
             result : items,
             start: start,
             stop: stop,
-            totalRecords: items.length
+            totalRecords: recordCount
         };
 
         res.json(result);
