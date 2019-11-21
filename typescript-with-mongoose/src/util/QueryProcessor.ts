@@ -14,7 +14,11 @@ export const getQueryString = (url : string) : string => {
 // this is based on https://github.com/vasansr/query-params-mongo, but I felt that
 // the filter variables should be the ones to have the prefix, which is the reverse
 // of that library
+//
+// sample filter: http://localhost:3000/v1/hd/page?filter=id_eq_1
 export const parseUrl = (url : string) : IMongoQuery => {
+
+    logger.debug(`Entered parseUrl(), url: ${url}`);
 
     // process the URL into a ParsedUrlQuery
     const mongoQuery: IMongoQuery = {};
@@ -45,6 +49,8 @@ export const parseUrl = (url : string) : IMongoQuery => {
         } else {
             mongoQuery.filter = {[filter[0]]: {[filter[1]] : filter[2]}};
         }
+
+        logger.debug(`Filter: ${JSON.stringify(mongoQuery.filter)}`);
 
     }
 
