@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import {CommandCursor } from "mongodb";
+import {CommandCursor, FilterQuery } from "mongodb";
 import { logger } from "../util/winston";
 import { IMongoQuery } from "../model/MongoQuery";
 
@@ -63,6 +63,19 @@ export abstract class BaseRepository<T extends mongoose.Document> {
         }
 
         return await mongoQuery.exec();
+
+    }
+
+    public getCount = async (query : FilterQuery<T> | null ) : Promise<number> => {
+
+        let result: number;
+        if (query == null) {
+            result = await this._model.collection.countDocuments({});
+        } else {
+            result = await this._model.collection.countDocuments(query);
+        }
+
+        return result;
 
     }
 
