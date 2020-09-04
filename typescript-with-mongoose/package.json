@@ -27,7 +27,7 @@
     "jszip": "^3.2.2",
     "mongoose": "^5.7.7",
     "morgan": "^1.9.1",
-    "papaparse": "^5.1.0",
+    "papaparse": "^5.2.0",
     "readline": "^1.3.0",
     "stream": "0.0.2",
     "vizier-model": "0.0.1",
