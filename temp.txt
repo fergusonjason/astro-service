@@ -1,0 +1,435 @@
+package iperms.svc.auth;
+
+import iperms.Props;
+import iperms.auth.AuthException;
+import iperms.db.RmaDataSource;
+import iperms.db.dao.DAOException;
+import iperms.security.DesEncrypter;
+import iperms.security.InputSanitizer;
+import iperms.svc.beans.ControllerResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import java.sql.SQLException;
+
+/**
+ * AuthenticateController -- Support authentication to RMA
+ *
+ * @author peter.d.porter
+ */
+@Scope("request")
+@Controller
+@RequestMapping("/auth")
+public class AuthBasicController extends AuthController {
+
+    @Autowired
+    RmaDataSource ds;
+
+    @RequestMapping(value="basic", method=RequestMethod.POST)
+    public @ResponseBody ControllerResponse authBasic(@RequestParam String username, @RequestParam String password) throws AuthException, UserNotFoundException, DAOException, SQLException {
+        // Sanitize username/password (decrypt if encrypted, e.g. from SnF)
+        username = InputSanitizer.cleanIPERMSUID(DesEncrypter.decryptDefault(username), null);
+        password = InputSanitizer.cleanAkoPWD(DesEncrypter.decryptDefault(password), null);
+
+        ds.getConnectionAsSystem();
+
+        authenticateBackDoor(username,password);
+
+        //NOTE If we add a future basic auth mechanism (e.g. DS-LOGON), it should be called here
+
+        loginByUsername(userSession.getUid());
+
+        return new ControllerResponse(true, "Success", "Successfully logged in as " + userSession.getUid(), "/");
+    }
+
+    /**
+     * Authenticate using Backdoor USERNAME/PASSWORD
+     *
+     * @param username Username provided by end user
+     * @param password Password provided by end user
+     */
+    private void authenticateBackDoor(String username, String password) throws AuthException {
+        authDetails.setMethod("BACK_DOOR");
+
+        if (!Props.getBoolean("rma.auth.back_door")) {
+            throw new AuthException("LB2","Unable to authenticate with username and password",username);
+        }
+
+        if(Props.getString("rma.auth.back_door_password").equals(password)) {
+            userSession.setUid(username);
+        }else{
+            throw new AuthException("LB1","Invalid username or password",username);
+        }
+    }
+
+}
+
+
+package iperms.svc.auth;
+
+import iperms.DI;
+import iperms.Props;
+import iperms.auth.AuthException;
+import iperms.auth.UnauthenticatedException;
+import iperms.common.AuthDetails;
+import iperms.common.UserSession;
+import iperms.db.beans.Name;
+import iperms.db.beans.Pair;
+import iperms.db.beans.Personnel;
+import iperms.db.dao.DAOException;
+import iperms.db.dao.LoginDAO;
+import iperms.db.dao.PersonnelDAO;
+import iperms.security.Auditor;
+import iperms.security.InputSanitizer;
+import iperms.session.IpermsSessionRepository;
+import iperms.svc.beans.ControllerResponse;
+import iperms.svc.ui.UserService;
+import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.session.ExpiringSession;
+import org.springframework.session.SessionRepository;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * AuthenticateController -- Support authentication to RMA
+ *
+ * @author peter.d.porter
+ */
+public abstract class AuthController extends BaseController {
+
+    private static Logger log = iperms.Logger.getLogger(AuthController.class);
+
+    @Autowired
+    HttpSession session;
+    @Autowired
+    UserSession userSession;
+    @Autowired
+    AuthDetails authDetails;
+
+    @Autowired
+    AuthenticationManager authenticationManager;
+
+    @Autowired
+    HttpServletRequest request;
+    @Autowired
+    HttpServletResponse response;
+
+    @Autowired
+    LoginDAO lDAO;
+    @Autowired
+    PersonnelDAO pDAO;
+    @Autowired
+    Auditor auditor;
+
+    @Autowired
+    SessionRepository<ExpiringSession> sessionRepository;
+
+    protected void loginByUsername(String username) throws UserNotFoundException, DAOException, AuthException {
+        setDetails();
+
+        LoginDAO.LoginResult result = lDAO.login(username, null, null, null, null, null, null, null, request.getRemoteAddr());
+
+        Pair<Personnel, Name> p = pDAO.getByPerId(result.getPerId());
+        if (p == null)
+            throw new UserNotFoundException(username);
+        loadUser(p);
+    }
+
+    protected void loginByEdipi(String edipi) throws UserNotFoundException, DAOException, SQLException, AuthException {
+        setDetails();
+
+        LoginDAO.LoginResult result = lDAO.login(null, null, edipi, null, null, null, null, null, request.getRemoteAddr());
+
+        Pair<Personnel, Name> p = pDAO.getByPerId(result.getPerId());
+        if (p == null)
+            throw new UserNotFoundException(edipi);
+        loadUser(p);
+    }
+
+    private void loadUser(Pair<Personnel, Name> p) {
+        userSession.setUid(p.get1().getIperms_uid());
+        userSession.setPerId(p.get1().getPer_id());
+        userSession.setSsn(p.get1().getSsn());
+        userSession.setEdipi(p.get1().getEdipi());
+        userSession.setAuthenticated(true);
+        if (p.get1().getAlt_email_addr() != null && p.get1().getAlt_email_addr().length() > 0)
+            userSession.setEmail(p.get1().getAlt_email_addr());
+        else
+            userSession.setEmail(p.get1().getMilEmailAddr());
+
+        userSession.setHttpSessionId(session.getId());
+
+        updateSpringSecurity(userSession,request,response);
+    }
+
+    private void logSuccess(UserSession userSession, String method) {
+        String userInfo = "NO_SESSION";
+        if (userSession != null) {
+            userInfo = combineStrings(userInfo, "uid", userSession.getUid(), "edipi", userSession.getEdipi());
+        }
+        log.info("Login Succeeded for " + userInfo + " [" + method + "]");
+    }
+
+    private void logFailed(String message, Exception e) {
+        String userInfo = "NO_SESSION";
+        if (userSession != null) {
+            userInfo = combineStrings(userInfo, "uid", userSession.getUid(), "edipi", userSession.getEdipi());
+        }
+        String logMessage = message + " [" + userInfo  + " " + authDetails.getMethod() + "]";
+        if (e == null) {
+            log.info(logMessage);
+        }else if (e instanceof AuthException) {
+            log.info(logMessage + ": " + ((AuthException) e).getCode() + " - " + e.getMessage());
+        }else {
+            log.info(logMessage + ": " + e.toString(), e);
+        }
+    }
+
+    String fromSnF() {
+        //TODO: Ensure that SnF authentication still works (only partially migrated)
+        return (String) request.getSession().getAttribute("ServerAuthorized");
+    }
+
+    void setDetails() {
+        authDetails.setBrowserVersion(InputSanitizer.cleanApplicationDescriptor(request.getParameter("browserVersion"), "unknown"));
+        authDetails.setBrowserCompatibilityView(InputSanitizer.cleanBoolean(request.getParameter("browserCompatibilityView")));
+
+        authDetails.setFromSnf(fromSnF() != null || !iperms.ServerInfo.isPRC());
+
+        //TODO: Validate that the real IP is passed from the proxy
+        //TODO: Validate that the real IP is passed for SnF Proxy logins
+        String remoteIp = getIP(request);
+
+        authDetails.setRemoteIp(remoteIp);
+    }
+
+    private String getIP( HttpServletRequest request ) {
+
+        String remoteIp = request.getHeader("Proxy-Client-Ip");
+
+        if (remoteIp == null || remoteIp.isEmpty()) {
+            remoteIp = request.getHeader("X-Forwarded-For");
+
+            if (remoteIp == null || remoteIp.isEmpty()) {
+                remoteIp = request.getRemoteAddr();
+
+                if (remoteIp == null || remoteIp.isEmpty()) {
+                    remoteIp = authDetails.getRemoteIp();
+                }
+            }
+        }
+
+        return remoteIp;
+    }
+
+    private String combineStrings(String ifEmpty, String... args) {
+        StringBuilder output = new StringBuilder();
+        for (int i=0; i<args.length; i+=2) {
+            if (args[0] != null && args[0].length()>0 &&
+                    args[1] != null && args[1].length()>0 ) {
+                if (output.length() > 0)
+                    output.append(", ");
+                output.append(args[0]);
+                output.append(":");
+                output.append(args[1]);
+            }
+
+        }
+        if (output.length() == 0)
+            output.append(ifEmpty);
+        return output.toString();
+    }
+
+    /**
+     * Connect RMA Authentication to SpringSecurity
+     *
+     * @param userSession Current User's Session
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     */
+    public static void updateSpringSecurity(UserSession userSession, HttpServletRequest request, HttpServletResponse response) {
+        // Glue into Spring Security
+        Authentication auth = new SpringSecurityConfig.RmaAuthToken(userSession);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        request.getSession(true).setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
+
+        int defaultTimeout = Props.getInt("session.max_inactive_interval");
+        if (UserService.isAdmin(userSession.getRole())) {
+            request.getSession().setMaxInactiveInterval(Props.getIntWithDefault("session.admin.max_inactive_interval", defaultTimeout));
+        } else {
+            request.getSession().setMaxInactiveInterval(defaultTimeout);
+        }
+
+        // log concurrent logins
+        IpermsSessionRepository sessionRepository = DI.get(IpermsSessionRepository.class);
+        List<IpermsSessionRepository.LoggedInUser> loggedInUsers = sessionRepository.listSessions();
+
+        // if I just pull both sessions out, one of them will be US domain, null role. In order to correctly log
+        // the "new" role and the already logged in soldiers, I have to get the list of other logins then append
+        // it to the "new" role
+        List<IpermsSessionRepository.LoggedInUser> concurrentLogins = loggedInUsers.stream()
+                .filter(u -> u.user.getPerId() == userSession.getPerId() && !u.sessionId.equals(userSession.getHttpSessionId())).collect(Collectors.toList());
+        if (concurrentLogins.size() > 0) {
+            // format the "new" login
+            String newLogin = String.format("{uid:%s, perId:%s, domain:%s, role: %s}",
+                    userSession.getUid(), userSession.getPerId(), userSession.getDomain(), userSession.getRole());
+
+            // format the other logins
+            String concurrentLoginMessage = concurrentLogins.stream()
+                    .map(u -> String.format("{uid:%s, perId:%s, domain:%s, role: %s}",
+                            u.user.getUid(), u.user.getPerId(), u.user.getDomain(), u.user.getRole()))
+                    .collect(Collectors.joining(","));
+
+            // join together and log
+            concurrentLoginMessage = String.join(",", newLogin, concurrentLoginMessage);
+            log.debug("Concurrent logins detected (total: {}): {}", concurrentLogins.size() + 1, concurrentLoginMessage);
+        }
+
+
+    }
+
+    class UserNotFoundException extends Exception {
+        public UserNotFoundException(String username) {
+            super(username);
+        }
+    }
+
+    @ExceptionHandler(AuthException.class)
+    public @ResponseBody ControllerResponse handleException(AuthException e) {
+        logFailed("Authentication Failure", e);
+
+        String auditMsg = e.getCode() + " - " + e.getMessage() + " [" + e.getUidOrEdipi() + "]";
+        auditor.audit( "LFN", auditMsg);
+
+        // TODO: When log4j2 is implemented, fix this to use a Marker
+        log.warn("ACCESS DENIED: " + auditMsg);
+
+        return new ControllerResponse(false, e.getCode(), e.getMessage());
+    }
+
+    @ExceptionHandler(UnauthenticatedException.class)
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody Object handleException(UnauthenticatedException e) {
+        return new ControllerResponse(false, e.getCode(), e.getMessage());
+    }
+
+    @ExceptionHandler(DAOException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public @ResponseBody ControllerResponse handleException(DAOException e) {
+        logFailed("DAOException during Authentication", e);
+        return new ControllerResponse(false, "DAO", "Exception loading data from database");
+    }
+
+    @ExceptionHandler(SQLException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public @ResponseBody ControllerResponse handleException(SQLException e) {
+        logFailed("SQLException during Authentication", e);
+        return new ControllerResponse(false, "SQL", "Exception loading data from database");
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody ControllerResponse handleException(UserNotFoundException e) {
+        log.warn(InputSanitizer.cleanLoggable("User not found: " + e.getMessage ()));
+        return new ControllerResponse(false, "UNF", "User " + e.getMessage() + " not found in the system");
+    }
+
+}
+
+
+package mil.army.iperms.api.auth;
+
+import iperms.auth.pki.AuthenticateDirectPKI;
+import iperms.auth.pki.HttpClientCertValues;
+import iperms.common.UserSession;
+import iperms.db.dao.DAOException;
+import mil.army.iperms.api.dao.impl.UserSessionDAOImpl;
+import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+
+/**
+ * PkiAuthenticationFilter - Provide direct PKI auth for non-Session based RESTful requests (for API purposes)
+ *
+ *   - Calling user/system authorized based on their CN (or EDIPI)
+ *   - Individual Authorities loaded from ROLE_ATTRIBUTE (hardcoded for legacy implementation)
+ *   - Authentication token provided to SpringSecurity with the above data
+ *
+ */
+@Component
+@Scope("prototype")
+@Order(1)
+public class PkiAuthenticationFilter extends OncePerRequestFilter {
+    private static final Logger log = iperms.Logger.getLogger(PkiAuthenticationFilter.class);
+
+    @Autowired
+    private UserSessionDAOImpl usDAO;
+
+    @Autowired
+    ApplicationContext ctx;
+
+    @Override
+    public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+        String principal = "UNKNOWN";
+        try {
+            log.debug("Entering doFilterInternal : " + request.getRequestURL().toString());
+            HttpClientCertValues hccv = AuthenticateDirectPKI.authenticate(request);
+            if (hccv != null) {
+                // Determine identification (EDIPI if it exists)
+                principal = hccv.getEdipi();
+                if (principal == null || principal.isEmpty() || principal.equals("9999999999"))
+                    principal = hccv.getCn();
+
+                // Load user information
+                UserSession user = new UserSession();
+                usDAO.load(user,hccv.getEdipi(),hccv.getCn());
+                usDAO.selectAPIRole(user,principal);
+
+                // Create our Authentication and inform Spring Security
+                List<GrantedAuthority> authorities = usDAO.getGrantedAuthorities(user);
+                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(principal,hccv,authorities);
+                SecurityContextHolder.getContext().setAuthentication(auth);
+                auth.setDetails(user);
+                request.setAttribute("principal", principal);
+            }
+        } catch (DAOException e) {
+            log.warn("Unable to load Authentication data for " + principal + ": " + e.toString());
+            throw new ServletException("Unable to load Authorizations for " + principal);
+        } catch (iperms.auth.AuthException e) {
+            log.warn("PKI Authentication failed for " + principal + ": " + e.toString());
+            throw new ServletException("PKI authentication failed for " + principal);
+        }
+
+        filterChain.doFilter(request,response);
+    }
+
+}
